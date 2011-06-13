@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /dtest/
+RewriteCond %{REQUEST_FILENAME} !.*/css/.* 
+RewriteCond %{REQUEST_FILENAME} !.*/img/.* 
+RewriteCond %{REQUEST_FILENAME} !.*/utests/.* 
+RewriteRule ^.*$ index.php [L]
+
