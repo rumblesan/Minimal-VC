@@ -8,7 +8,7 @@ class View
 
     protected $file;
 
-    protected $args;
+    protected $args = array();
 
     function __construct($view,
                          $type,
