@@ -1,7 +1,4 @@
 RewriteEngine On
-RewriteBase /dtest/
-RewriteCond %{REQUEST_FILENAME} !.*/css/.* 
-RewriteCond %{REQUEST_FILENAME} !.*/img/.* 
+RewriteBase /minvc
 RewriteCond %{REQUEST_FILENAME} !.*/utests/.* 
-RewriteRule ^.*$ index.php [L]
-
+RewriteRule ^.*$ app/webroot/ [L]
