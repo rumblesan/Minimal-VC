@@ -14,7 +14,7 @@ define('CPATH', APP  . 'controllers/');
 define('VPATH', APP  . 'views/');
 
 # Turn autoloading on or off
-define('AUTOLOAD', False);
+define('AUTOLOAD', True);
 
 # Get core Minimal VC files
 require_once MINVC . 'minvc_core.php';
