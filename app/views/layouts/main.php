@@ -1,9 +1,24 @@
 <html>
 <head>
-<title>Minimal View Controller</title>
+    <title>Minimal View Controller</title>
+    <link href=/css/style.css rel=stylesheet type=text/css>
+</head>
+
 <body>
-<?php echo $header ?>
-<?php echo $content ?>
+
+    <div id="header">
+        <?php echo $header ?>
+    </div>
+
+    <div id="sidebar">
+        <?php echo $sidebar ?>
+    </div>
+
+    <div id="main">
+        <?php echo $content ?>
+    </div>
+
 </body>
+
 </html>
 

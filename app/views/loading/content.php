@@ -1,5 +1,5 @@
-<div id=content>
-Hopefully the Autoloading works ok
+
+This will test the AutoLoading functionality
 <br>
 There should be a list of variables below, four of them to be precise
 <br>
@@ -9,4 +9,4 @@ There should be a list of variables below, four of them to be precise
 <li><?php echo "Var3: $var3" ?></li>
 <li><?php echo "Var4: $var4" ?></li>
 </ul>
-</div>
+

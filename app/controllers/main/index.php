@@ -2,9 +2,12 @@
 
     function _index()
     {
-        $content = new View("content", "main", VPATH);
-        $header  = new View("header",  "main", VPATH);
-        $page    = new View("main", "layouts", VPATH);
+        $page    = new View("main",    "layouts", VPATH);
+        $sidebar = new View("sidebar", "layouts", VPATH);
+        $content = new View("content", "main",    VPATH);
+        $header  = new View("header",  "main",    VPATH);
+
+        $page->set("sidebar", $sidebar->pack_view());
 
         $page->set("header",   $header->pack_view());
         $page->set("content", $content->pack_view());
