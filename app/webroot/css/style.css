@@ -51,9 +51,6 @@ abbr,acronym {
   border-width:2px;
   padding: 5px;
 }
-#sidebar ul,#sidebar li {
-  position:relative;
-}
 
 #main {
   height:90%;
