@@ -2,7 +2,7 @@
 
 # BASE is the directory that Minimal VC is installed to
 # this is removed from the request URL to get the correct path
-define('BASE',     '/minvc/');
+define('BASE',     '/');
 
 # Paths to Minimal VC folder and APP folder
 define('ROOT',     dirname(dirname(dirname(__FILE__))));
