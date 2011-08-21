@@ -54,15 +54,6 @@ class View
         return $this->__set($key, $val);
     }
 
-    function merge($data_array)
-    {
-        foreach ($data_array as $key => $value)
-        {
-            $this->set($key, $value);
-        }
-        return $this;
-    }
-
     function show_view()
     {
         extract($this->args);
