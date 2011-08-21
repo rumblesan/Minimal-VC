@@ -16,11 +16,14 @@ define('VPATH', APP  . 'views/');
 # Turn autoloading on or off
 define('AUTOLOAD', True);
 
+# Load app config files
+require_once APP       . "config/config.php";
+
 # Get core Minimal VC files
 require_once MINVC . 'minvc_core.php';
 
 ini_set("include_path", APP);
 
 
-$controller = New Controller($_SERVER['REQUEST_URI'], BASE, CPATH);
+$controller = New Router($_SERVER['REQUEST_URI'], BASE, CPATH);
 
