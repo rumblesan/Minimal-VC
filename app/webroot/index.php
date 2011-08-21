@@ -17,7 +17,7 @@ define('VPATH', APP  . 'views/');
 define('AUTOLOAD', True);
 
 # Load app config files
-require_once APP       . "config/config.php";
+require_once APP . "cfg/cfg.php";
 
 # Get core Minimal VC files
 require_once MINVC . 'minvc_core.php';
