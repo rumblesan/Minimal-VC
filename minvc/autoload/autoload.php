@@ -3,7 +3,7 @@
 #function to deal with autoloading of classes
 function __autoload($class_name)
 {
-    $class_file = str_replace('_', '/', $class) . '.php';
+    $class_file = str_replace('_', '/', $class_name) . '.class.php';
     $class_folders = array(APP, MINVC);
     foreach ($class_folders as $folder)
     {
