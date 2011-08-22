@@ -43,6 +43,7 @@
             {
                 $this->arg_values[$arg_name]->setting($setting, $value);
             }
+            return $this;
         }
 
         public function get_arg_value($arg_name)
