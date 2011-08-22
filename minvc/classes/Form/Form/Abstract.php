@@ -26,25 +26,25 @@
 
         public function add_checkbox($name, $title='')
         {
-            $this->elements[$name] = new Form_CheckBox($name, $title);
+            $this->elements[$name] = new Form_Element_CheckBox($name, $title);
             return $this->elements[$name];
         }
 
         public function add_hidden($name, $title='')
         {
-            $this->elements[$name] = new Form_Hidden($name, $title);
+            $this->elements[$name] = new Form_Element_Hidden($name, $title);
             return $this->elements[$name];
         }
 
         public function add_select($name, $title='')
         {
-            $this->elements[$name] = new Form_Select($name, $title);
+            $this->elements[$name] = new Form_Element_Select($name, $title);
             return $this->elements[$name];
         }
 
         public function add_textbox($name, $title='')
         {
-            $this->elements[$name] = new Form_Text($name, $title);
+            $this->elements[$name] = new Form_Element_Text($name, $title);
             return $this->elements[$name];
         }
 
