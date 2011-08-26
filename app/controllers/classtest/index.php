@@ -30,25 +30,47 @@
         $awesome_el = $form->add_checkbox('awesome', 'Awesome?');
         $awesome_el->setting('checked', $arg_parser->awesome);
 
+        $table = new Table_Table();
+        $caption = $table->add_caption('A Table of information');
+
+        $header  = $table->add_header();
+        $header->add_cell('Question');
+        $header->add_cell('Answer');
+
+        $header  = $table->add_row();
+        $header->add_cell('Who Are You?');
+        $header->add_cell($arg_parser->nickname);
+
+        $header  = $table->add_row();
+        $header->add_cell('Your Birthday Is?');
+        $header->add_cell($arg_parser->birth);
+
+        $header  = $table->add_row();
+        $header->add_cell('How many Penguins do you own?');
+        $header->add_cell($arg_parser->penguins);
+
+        $header  = $table->add_row();
+        $header->add_cell('How many Pies did you eat?');
+        $header->add_cell($arg_parser->pies);
+
+        $header  = $table->add_row();
+        $header->add_cell('Is this Awesome?');
+        if ( $arg_parser->awesome )
+        {
+            $header->add_cell('Hell Yeah');
+        }
+        else
+        {
+            $header->add_cell('Not Really');
+        }
+
         $page    = new View("main",    "layouts", VPATH);
         $sidebar = new View("sidebar", "layouts", VPATH);
         $header  = new View("header",  "classtest",    VPATH);
         $content = new View("content", "classtest",    VPATH);
 
 
-        $content->set("nickname", $arg_parser->nickname);
-        $content->set("birth", $arg_parser->birth);
-        $content->set("penguins", $arg_parser->penguins);
-        $content->set("pies", $arg_parser->pies);
-        if ( $arg_parser->awesome )
-        {
-            $awesomeorno = 'really';
-        }
-        else
-        {
-            $awesomeorno = 'not';
-        }
-        $content->set("awesomeorno", $awesomeorno);
+        $content->set("table_html", $table->render());
         $content->set("form_html", $form->render());
 
         $page->set("sidebar", $sidebar->pack_view());
