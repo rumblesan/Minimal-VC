@@ -3,16 +3,29 @@
 abstract class Model
 {
     protected $pk_name;
-    protected $table_name;
+    protected $tablename;
     protected $dbI;
     public    $data       = array();
     protected $data_types = array();
 
-    function __construct($dbI, $pk_name, $table_name)
+    function __construct($dbI, $pk_name, $tablename)
     {
-        $this->dbI         = $dbI;
-        $this->pk_name     = $pk_name;
-        $this->table_name  = $table_name;
+        $this->dbI        = $dbI;
+        $this->pk_name    = $pk_name;
+        $this->tablename  = $tablename;
+    }
+
+    protected function pdo_type($key)
+    {
+        switch ($this->data_types[$key])
+        {
+            case 's':
+                return PDO::PARAM_STR;
+            case 'i':
+                return PDO::PARAM_INT;
+            default:
+                return False;
+        }
     }
 
     function get($key)
@@ -48,32 +61,33 @@ abstract class Model
         {
             if ($key != $pk_name || $value)
             {
-                $keys[]   = '`'.$key.'`';
-                $values[] = '?';
+                $keys[]   = '`' . $key . '`';
+                $values[] = ':' . $key . '';
             }
         }
         $sql  = 'INSERT INTO `' . $this->tablename . '`';
-        $sql .= '(' . implode(',',$keys) . ') ';
-        $sql .= 'VALUES (' . implode(',',$values) . ')';
+        $sql .= '(' . implode(', ',$keys) . ') ';
+        $sql .= 'VALUES (' . implode(', ',$values) . ')';
         $stmt = $this->dbI->prepare($sql);
-        
-        $types       = array();
-        $values      = array();
+
+        echo $sql;
+        exit;
         foreach ($this->data as $key => $value)
         {
             if ($key != $pk_name || $value)
             {
-                $types[]  = $this->data_types[$key];
-                $values[] = &$this->data[$key];
+                $pdo_type = $this->pdo_type($key);
+                $value    = $this->data[$key];
+                $stmt->bindValue(':' . $key, $value, $pdo_type);
             }
         }
-        call_user_func_array(array($stmt, 'bind_param'), array_merge($types, $values));
+
         $stmt->execute();
-        if ( ! $stmt->affected_rows)
+        if ( ! $stmt->rowCount())
         {
             return false;
         }
-        $this->set($pk_name,$stmt->insert_id);
+        $this->set($pk_name,$this->dbI->lastInsertID());
         return $this;
     }
 
@@ -81,16 +95,15 @@ abstract class Model
     {
         $pk_name = $this->pk_name;
         $sql  = 'SELECT * FROM `' . $this->tablename . '` ';
-        $sql .= 'WHERE `' . $pk_name . '`=?';
+        $sql .= 'WHERE `' . $pk_name . '` = :' . $pk_name;
 
         $stmt = $this->dbI->prepare($sql);
-        $stmt->bind_param($this->data_types[$pk_name], $pk_value);
+        $stmt->bindValue(':' . $pk_name, $pk_value, $this->pdo_type($key));
         $stmt->execute();
 
-        if ($result = $stmt->get_result())
+        if ($results = $stmt->fetch(PDO::FETCH_ASSOC))
         {
-            $row = $result->fetch_assoc();
-            foreach ($row as $key => $value)
+            foreach ($results as $key => $value)
             {
                 $this->$key = $value;
             }
@@ -101,46 +114,47 @@ abstract class Model
     function update()
     {
         $pk_name = $this->pk_name;
-        $keys        = array();
-        $values      = array();
-        foreach ($this->data as $key => $value)
-        {
-            $sets[] = '`'.$key.'` = ?';
-        }
-        $sql  = 'UPDATE `' . $this->tablename . '` ';
-        $sql .= 'SET ' . implode(',',$keys) . ' ';
-        $sql .= 'WHERE `' . $pk_name . ' = ?';
-        $stmt = $this->dbI->prepare($sql);
-        
-        $types       = array();
-        $values      = array();
+        $sets        = array();
         foreach ($this->data as $key => $value)
         {
             if ($key != $pk_name || $value)
             {
-                $types[]  = $this->data_types[$key];
-                $values[] = &$this->data[$key];
+                $sets[] = '`'.$key.'` = :' . $key;
             }
         }
-        call_user_func_array(array($stmt, 'bind_param'), array_merge($types, $values));
+        $sql  = 'UPDATE `' . $this->tablename . '` ';
+        $sql .= 'SET ' . implode(',',$sets) . ' ';
+        $sql .= 'WHERE `' . $pk_name . '` = ?';
+        $stmt = $this->dbI->prepare($sql);
+
+        foreach ($this->data as $key => $value)
+        {
+            if ($key != $pk_name || $value)
+            {
+                $pdo_type  = $this->pdo_type($key);
+                $value     = $this->data[$key];
+                $stmt->bindValue(':' . $key, $value, $pdo_type);
+            }
+        }
         return $stmt->execute();
     }
-
 
     function delete()
     {
         $pk_name  = $this->pk_name;
         $pk_value = $this->data[$pk_name];
         $sql  = 'DELETE FROM `' . $this->tablename . '` ';
-        $sql .= 'WHERE `' . $pk_name . '`=?';
+        $sql .= 'WHERE `' . $pk_name . '` = :' . $pk_name;
         $stmt = $this->dbI->prepare($sql);
-        $stmt->bind_param($this->data_types[$pk_name], $pk_value);
+        $stmt->bindValue(':' . $pk_name, $pk_value, $this->pdo_type($pk_name));
         return $stmt->execute();
     }
 
     function exists($checkdb=false)
     {
-        if ((int)$this->data[$this->pk_name] < 1)
+        $pk_name  = $this->pk_name;
+        $pk_value = $this->data[$pk_name];
+        if ((int)$pk_value < 1)
         {
             return false;
         }
@@ -149,7 +163,9 @@ abstract class Model
             return true;
         }
         $sql = 'SELECT 1 FROM `' . $this->tablename . '`';
-        $sql = 'WHERE `' . $this->pkname . "` = '" . $this->data[$this->pkname] . "'";
+        $sql = 'WHERE `' . $pk_name . "` = :" . $pk_name;
+        $stmt = $this->dbI->prepare($sql);
+        $stmt->bindValue(':' . $pk_name, $pk_value, $this->pdo_type($key));
         $result = $this->dbI->query($sql)->fetchAll();
         return count($result);
     }
@@ -180,12 +196,10 @@ abstract class Model
         $sql = 'SELECT * FROM `' . $this->tablename . '`';
 
         $sets  = array();
-        $types = array();
-        $vals  = array();
 
         foreach ($keys as $key)
         {
-            $sets[] = '`'.$key.'` = ?';
+            $sets[] = '`'.$key.'` = :' . $key;
         }
 
         $sql .= ' WHERE ' . implode(' AND ', $keys);
@@ -193,23 +207,22 @@ abstract class Model
 
         $stmt = $this->dbI->prepare($sql);
 
-        foreach ($keys as $arrkey => $key)
+        foreach ($keys as $key)
         {
-            $types[] = $this->data_types[$key];
-            $vals[]  = &$this->values[$arrkey];
+            $pdo_type  = $this->pdo_type($key);
+            $value    = $this->values[$key];
+            $stmt->bindValue(':' . $key, $value, $pdo_type);
         }
 
-        call_user_func_array(array($stmt, 'bind_param'), array_merge($types, $values));
         $stmt->execute();
 
-        if ( ! $result = $stmt->get_result())
+        if ( ! $results = $stmt->fetch(PDO::FETCH_ASSOC))
         {
             return False;
         }
         else
         {
-            $row = $result->fetch_assoc();
-            foreach ($row as $key => $value)
+            foreach ($results as $key => $value)
             {
                 $this->$key = $value;
             }
@@ -230,14 +243,12 @@ abstract class Model
         $sql = 'SELECT * FROM `' . $this->tablename . '`';
 
         $sets  = array();
-        $types = array();
-        $vals  = array();
 
-        if (count($keys) === 0)
+        if (count($keys) !== 0)
         {
             foreach ($keys as $key)
             {
-                $sets[] = '`'.$key.'` = ?';
+                $sets[] = '`'.$key.'` = :' . $key;
             }
 
             $sql .= ' WHERE ' . implode(' AND ', $keys);
@@ -245,36 +256,51 @@ abstract class Model
 
         $stmt = $this->dbI->prepare($sql);
 
-        foreach ($keys as $arrkey => $key)
+        foreach ($keys as $key)
         {
-            $types[] = $this->data_types[$key];
-            $vals[]  = &$this->values[$arrkey];
+            $pdo_type  = $this->pdo_type($key);
+            $value    = $this->values[$key];
+            $stmt->bindValue(':' . $key, $value, $pdo_type);
         }
-
-        call_user_func_array(array($stmt, 'bind_param'), array_merge($types, $vals));
 
         $stmt->execute();
 
         $object_list = array();
         $class       = get_class($this);
 
-        if ( ! $result = $stmt->get_result())
+        while ( $result = $stmt->fetch(PDO::FETCH_ASSOC))
         {
-            return $object_list;
-        }
-        else
-        {
-            while ($row = $result->fetch_assoc())
+            $thisclass = new $class();
+            foreach ($result as $key => $value)
             {
-                $thisclass = new $class();
-                foreach ($row as $key => $value)
-                {
-                    $thisclass->$key = $value;
-                }
-                $object_list[] = $thisclass;
+                $thisclass->$key = $value;
             }
+            $object_list[] = $thisclass;
         }
         return $object_list;
     }
 }
+
+
+class User extends Model
+{
+    function __construct($dbI)
+    {
+        parent::__construct($dbI, 'id', 'users');
+
+        $this->data['id']        = '';
+        $this->data['username']  = '';
+        $this->data['numberone'] = '';
+        $this->data['numbertwo'] = '';
+        $this->data['birthday']  = '';
+
+        $this->data_types['id']        = 'i';
+        $this->data_types['username']  = 's';
+        $this->data_types['numberone'] = 'i';
+        $this->data_types['numbertwo'] = 'i';
+        $this->data_types['birthday']  = 's';
+    }
+}
+
+
 
