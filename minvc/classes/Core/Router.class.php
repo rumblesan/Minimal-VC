@@ -4,8 +4,8 @@ class Router
 {
     protected $uri;
     protected $uribase;
-    protected $controller;
-    protected $function;
+    protected $group;
+    protected $controller_file;
     protected $args = array();
 
     protected $path;
@@ -13,13 +13,11 @@ class Router
     function __construct($uri='',
                          $uribase='/',
                          $path='.',
-                         $controller='main',
-                         $function='index')
+                         $controller='main')
     {
         $this->uri        = $uri;
         $this->uribase    = $uribase;
         $this->controller = $controller;
-        $this->function   = $function;
         $this->path       = $path;
 
         if ($uri !=='')
@@ -47,13 +45,9 @@ class Router
         {
             $this->controller = $split[0];
         }
-        if (isset($split[1]) && $split[1])
+        if (count($split) > 1)
         {
-            $this->function   = $split[1];
-        }
-        if (count($split) > 2)
-        {
-            $this->args       = array_slice($split, 2);
+            $this->args       = array_slice($split, 1);
         }
 
         return $this;
@@ -61,18 +55,15 @@ class Router
 
     function call_funcs()
     {
-        $cfile     = $this->path  . $this->controller;
-        $cfile    .= "/" . $this->function . ".php";
-        $func_name = "_" . $this->function;
+        $cfile = $this->path . "/" . $this->controller . ".php";
+        $cname = 'c_' . $this->controller;
 
         if (file_exists($cfile))
         {
-            include_once($cfile);
-            if (function_exists($func_name))
-            {
-                call_user_func($func_name, $this->args);
-                return $this;
-            }
+            require_once($cfile);
+            $controller = new $cname($this->args);
+            $controller->run();
+            return $this;
         }
         $this->error();
     }
