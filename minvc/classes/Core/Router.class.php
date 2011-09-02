@@ -3,82 +3,98 @@
 class Router
 {
     protected $uri;
-    protected $uribase;
-    protected $group;
-    protected $controller_file;
-    protected $args = array();
+    protected $uri_base;
+    protected $uri_default;
+    protected $c_path;
+    protected $split_uri = array();
 
     protected $path;
     
     function __construct($uri='',
-                         $uribase='/',
-                         $path='.',
-                         $controller='main')
+                         $uri_base='/',
+                         $c_path='./',
+                         $uri_default='index')
     {
-        $this->uri        = $uri;
-        $this->uribase    = $uribase;
-        $this->controller = $controller;
-        $this->path       = $path;
+        $this->uri         = $uri;
+        $this->uri_base    = $uri_base;
+        $this->uri_default = $uri_default;
+        $this->c_path      = $c_path;
 
         if ($uri !=='')
         {
             $this->format_uri()
                  ->split_uri()
-                 ->call_funcs();
+                 ->call_controller();
         }
     }
 
     function format_uri()
     {
-        if (strpos($this->uri, $this->uribase) === 0)
+        if (strpos($this->uri, $this->uri_base) === 0)
         {
-            $this->uri = substr($this->uri, strlen($this->uribase));
+            $this->uri = substr($this->uri, strlen($this->uri_base));
         }
-
         return $this;
     }
 
     function split_uri()
     {
-        $split = explode ("/", $this->uri);
-        if (isset($split[0]) && $split[0])
+        $split_uri = explode ('/', $this->uri);
+        if (! (isset($split_uri[0]) && $split_uri[0]))
         {
-            $this->controller = $split[0];
+            $split_uri = explode ('/', $this->uri_default);
         }
-        if (count($split) > 1)
-        {
-            $this->args       = array_slice($split, 1);
-        }
-
+        $this->split_uri = $split_uri;
         return $this;
     }
 
-    function call_funcs()
+    function call_controller()
     {
-        $cfile = $this->path . "/" . $this->controller . ".php";
-        $cname = 'c_' . $this->controller;
+        $file_path = '';
+        $uri_parts = $this->split_uri;
+        $c_path    = $this->c_path;
+        $c_file    = '';
+        $c_name    = '';
+        $c_args    = array();
 
-        if (file_exists($cfile))
+        while ($section = array_shift($uri_parts))
         {
-            require_once($cfile);
-            $controller = new $cname($this->args);
-            $controller->run();
-            return $this;
+            $check_path = $c_path . $file_path . 'c_' . $section . '.php';
+            if (file_exists($check_path))
+            {
+                $c_file = $check_path;
+                $c_name = 'c_' . $section;
+                $c_args = $uri_parts;
+                break;
+            }
+            $file_path .= $section . '/';
         }
-        $this->error();
+
+        if ($c_file !== '')
+        {
+            require_once($c_file);
+            if (class_exists($c_name))
+            {
+                $controller = new $c_name($c_args);
+                $controller->run();
+                return True;
+            }
+        }
+        return $this->error();
     }
 
     function error()
     {
-        header('Refresh: 2; URL=' . $this->uribase);
-        $html  = "<html>";
-        $html .= "<head><title>Uh Oh...</title></head>";
-        $html .= "<body>";
-        $html .= "<h1>Somethings gone wrong</h1>";
-        $html .= "Lets go back to the front page";
-        $html .= "</body>";
-        $html .= "</html>";
+        header('Refresh: 2; URL=' . $this->uri_base);
+        $html  = '<html>';
+        $html .= '<head><title>Uh Oh...</title></head>';
+        $html .= '<body>';
+        $html .= '<h1>Somethings gone wrong</h1>';
+        $html .= 'Lets go back to the front page';
+        $html .= '</body>';
+        $html .= '</html>';
         echo $html;
+        return False;
     }
 
 }
