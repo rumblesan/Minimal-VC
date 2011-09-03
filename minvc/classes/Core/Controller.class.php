@@ -2,41 +2,59 @@
 
 abstract class Controller
 {
-    protected $values   = array();
-
-    protected $req_args = array();
-    protected $url_args = array();
+    protected $args      = array();
+    protected $requests  = array();
 
     function __construct($args)
     {
-        $this->url_args = $args;
+        $this->args  = $args;
+
+        $this->requests['GET']     = '_get';
+        $this->requests['POST']    = '_post';
+        $this->requests['PUT']     = '_put';
+        $this->requests['DELETE']  = '_delete';
+        $this->requests['HEAD']    = '_head';
+        $this->requests['OPTIONS'] = '_options';
     }
 
-    public function get($name)
+    public function _head()
     {
-        return $this->values[$name];
+        header('HTTP/1.0 200 OK');
     }
 
-    public function __get($name)
+    public function _options()
     {
-        return $this->get($name);
-    }
-
-    public function set($name, $value)
-    {
-        if ( isset($this->values[$name]) )
+        $options = array();
+        foreach ($this->requests as $request => $method)
         {
-            $this->values[$name] = $value;
+            if ( method_exists($this, $method) &&
+                 is_callable(array($this, $method)) )
+            {
+                $options[] = $request;
+            }
         }
-        return $this;
+        $options = implode(",", $options);
+        echo $options . "\n";
     }
 
-    public function __set($name, $value)
+    public function run()
     {
-        return $this->set($name, $value);
+        $request_type   = $_SERVER['REQUEST_METHOD'];
+        $request_method = $this->requests[$request_type];
+        if ( method_exists($this, $request_method) &&
+             is_callable(array($this, $request_method)) )
+        {
+            $this->$request_method();
+        }
+        else
+        {
+            $this->request_error();
+        }
     }
 
-    abstract public function run();
-
+    public function request_error()
+    {
+        echo "ERROR";
+    }
 }
 
