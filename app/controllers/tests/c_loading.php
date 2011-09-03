@@ -1,6 +1,8 @@
 <?php
 
-    function _index()
+class c_loading extends Controller
+{
+    public function _get()
     {
         $arg_parser = new Parser_Request_Parser();
         $arg_parser->add_arg('nickname', 'string', 'Guy')
@@ -80,4 +82,5 @@
         
         $page->show_view();
     }
+}
 

@@ -1,12 +1,19 @@
 <?php
 
-    function _test($args)
+class c_args extends Controller
+{
+    function __construct($args)
     {
-        $age  = $args[1];
-        $name = $args[0];
+        parent::__construct($args);
+        
+        $age  = $this->args[1];
+        $name = $this->args[0];
         $name = (isset($name) && $name) ? $name : "World";
         $age  = (isset($age)  && $age)  ? $age  : "4.54 billion";
+    }
 
+    public function _get()
+    {
         $page    = new View("main",    "layouts", VPATH);
         $sidebar = new View("sidebar", "layouts", VPATH);
         $header  = new View("header",  "test",    VPATH);
@@ -22,4 +29,5 @@
         
         $page->show_view();
     }
+}
 

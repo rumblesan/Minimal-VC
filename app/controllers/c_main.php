@@ -1,6 +1,8 @@
 <?php
 
-    function _index()
+class c_loading extends Controller
+{
+    public function _get()
     {
         $page    = new View("main",    "layouts", VPATH);
         $sidebar = new View("sidebar", "layouts", VPATH);
@@ -24,4 +26,5 @@
 
         $page->show_view();
     }
+}
 
