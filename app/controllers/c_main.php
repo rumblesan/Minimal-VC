@@ -1,6 +1,6 @@
 <?php
 
-class c_loading extends Controller
+class c_main extends Controller
 {
     public function _get()
     {
