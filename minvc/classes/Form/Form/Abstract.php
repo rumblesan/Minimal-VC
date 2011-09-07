@@ -15,7 +15,7 @@
 
         public function __construct($url, $method='GET')
         {
-            $this->action_url = $url;
+            $this->action_url = BASE . $url;
 
             if ( ! in_array($method, $this->method_list) )
             {
