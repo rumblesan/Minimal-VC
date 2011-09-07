@@ -70,8 +70,6 @@ abstract class Model
         $sql .= 'VALUES (' . implode(', ',$values) . ')';
         $stmt = $this->dbI->prepare($sql);
 
-        echo $sql;
-        exit;
         foreach ($this->data as $key => $value)
         {
             if ($key != $pk_name || $value)
@@ -98,7 +96,7 @@ abstract class Model
         $sql .= 'WHERE `' . $pk_name . '` = :' . $pk_name;
 
         $stmt = $this->dbI->prepare($sql);
-        $stmt->bindValue(':' . $pk_name, $pk_value, $this->pdo_type($key));
+        $stmt->bindValue(':' . $pk_name, $pk_value, $this->pdo_type($pk_name));
         $stmt->execute();
 
         if ($results = $stmt->fetch(PDO::FETCH_ASSOC))
@@ -124,7 +122,7 @@ abstract class Model
         }
         $sql  = 'UPDATE `' . $this->tablename . '` ';
         $sql .= 'SET ' . implode(',',$sets) . ' ';
-        $sql .= 'WHERE `' . $pk_name . '` = ?';
+        $sql .= 'WHERE `' . $pk_name . '` = :' . $pk_name;
         $stmt = $this->dbI->prepare($sql);
 
         foreach ($this->data as $key => $value)
@@ -162,12 +160,12 @@ abstract class Model
         {
             return true;
         }
-        $sql = 'SELECT 1 FROM `' . $this->tablename . '`';
-        $sql = 'WHERE `' . $pk_name . "` = :" . $pk_name;
+        $sql  = 'SELECT 1 FROM `' . $this->tablename . '` ';
+        $sql .= 'WHERE `' . $pk_name . "` = :" . $pk_name;
         $stmt = $this->dbI->prepare($sql);
-        $stmt->bindValue(':' . $pk_name, $pk_value, $this->pdo_type($key));
-        $result = $this->dbI->query($sql)->fetchAll();
-        return count($result);
+        $stmt->bindValue(':' . $pk_name, $pk_value, $this->pdo_type($pk_name));
+        $stmt->execute();
+        return count($stmt->fetchAll());
     }
 
     function merge($arr)
@@ -188,7 +186,7 @@ abstract class Model
         $values = is_scalar($values) ? array($values) : $values;
         $keys   = is_scalar($keys)   ? array($keys)   : $keys;
 
-        if (count($keys) !== count($calues))
+        if (count($keys) !== count($values))
         {
             return False;
         }
@@ -202,15 +200,16 @@ abstract class Model
             $sets[] = '`'.$key.'` = :' . $key;
         }
 
-        $sql .= ' WHERE ' . implode(' AND ', $keys);
+        $sql .= ' WHERE ' . implode(' AND ', $sets);
         $sql .= ' LIMIT 1';
 
         $stmt = $this->dbI->prepare($sql);
 
-        foreach ($keys as $key)
+        for ($i = 0; $i < count($keys); $i++)
         {
+            $key       = $keys[$i];
+            $value     = $values[$i];
             $pdo_type  = $this->pdo_type($key);
-            $value    = $this->values[$key];
             $stmt->bindValue(':' . $key, $value, $pdo_type);
         }
 
@@ -232,10 +231,13 @@ abstract class Model
 
     function retrieve_many($keys='',$values='')
     {
+        $values = $values == '' ? array() : $values;
+        $keys   = $keys   == '' ? array() : $keys;
+
         $values = is_scalar($values) ? array($values) : $values;
         $keys   = is_scalar($keys)   ? array($keys)   : $keys;
 
-        if (count($keys) !== count($calues))
+        if (count($keys) !== count($values))
         {
             return False;
         }
@@ -251,15 +253,17 @@ abstract class Model
                 $sets[] = '`'.$key.'` = :' . $key;
             }
 
-            $sql .= ' WHERE ' . implode(' AND ', $keys);
+            $sql .= ' WHERE ' . implode(' AND ', $sets);
         }
 
+        echo $sql . '<br>';
         $stmt = $this->dbI->prepare($sql);
 
-        foreach ($keys as $key)
+        for ($i = 0; $i < count($keys); $i++)
         {
+            $key       = $keys[$i];
+            $value     = $values[$i];
             $pdo_type  = $this->pdo_type($key);
-            $value    = $this->values[$key];
             $stmt->bindValue(':' . $key, $value, $pdo_type);
         }
 
@@ -270,7 +274,7 @@ abstract class Model
 
         while ( $result = $stmt->fetch(PDO::FETCH_ASSOC))
         {
-            $thisclass = new $class();
+            $thisclass = new $class($this->dbI);
             foreach ($result as $key => $value)
             {
                 $thisclass->$key = $value;
@@ -290,15 +294,11 @@ class User extends Model
 
         $this->data['id']        = '';
         $this->data['username']  = '';
-        $this->data['numberone'] = '';
-        $this->data['numbertwo'] = '';
-        $this->data['birthday']  = '';
+        $this->data['nickname']  = '';
 
-        $this->data_types['id']        = 'i';
-        $this->data_types['username']  = 's';
-        $this->data_types['numberone'] = 'i';
-        $this->data_types['numbertwo'] = 'i';
-        $this->data_types['birthday']  = 's';
+        $this->data_types['id']       = 'i';
+        $this->data_types['username'] = 's';
+        $this->data_types['nickname'] = 's';
     }
 }
 
