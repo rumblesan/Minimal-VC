@@ -4,10 +4,7 @@ class c_main extends Controller
 {
     public function _get()
     {
-        $page    = new View("main",    "layouts", VPATH);
-        $sidebar = new View("sidebar", "layouts", VPATH);
-        $content = new View("content", "loading", VPATH);
-        $header  = new View("header",  "loading", VPATH);
+        $view = $this->get_view('main');
 
         $test    = new Test('test 1');
 
@@ -17,14 +14,9 @@ class c_main extends Controller
         $test->set('var3', 200);
 
         $var_list = $test->get_var_data();
-        $content->merge($var_list);
+        $view->merge($var_list);
 
-        $page->set("sidebar", $sidebar->pack_view());
-
-        $page->set("header",   $header->pack_view());
-        $page->set("content", $content->pack_view());
-
-        $page->show_view();
+        $view->render();
     }
 }
 

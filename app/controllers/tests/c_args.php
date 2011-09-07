@@ -4,24 +4,18 @@ class c_args extends Controller
 {
     public function _get()
     {
-        $age  = $this->args[1];
-        $name = $this->args[0];
-        $name = (isset($name) && $name) ? $name : "World";
-        $age  = (isset($age)  && $age)  ? $age  : "4.54 billion";
+        $view = $this->get_view('tests/args');
 
-        $page    = new View("main",    "layouts", VPATH);
-        $sidebar = new View("sidebar", "layouts", VPATH);
-        $header  = new View("header",  "test",    VPATH);
-        $content = new View("content", "test",    VPATH);
+        if (isset($this->args[0]) && $this->args[0])
+        {
+            $view->name = $this->args[0];
+        }
 
-        $content->set("name", $name);
-        $content->set("age",  $age);
+        if (isset($this->args[1]) && $this->args[1])
+        {
+            $view->age  = $this->args[1];
+        }
 
-        $page->set("sidebar", $sidebar->pack_view());
-
-        $page->set("header",   $header->pack_view());
-        $page->set("content", $content->pack_view());
-
-        $page->show_view();
+        $view->render();
     }
 }
