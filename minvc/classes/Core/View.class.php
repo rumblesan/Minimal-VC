@@ -1,60 +1,34 @@
 <?php
 
-class View
+abstract class View
 {
-    protected $view;
-    protected $type;
-    protected $base;
+    protected $values = array();
 
-    protected $file;
-
-    protected $args = array();
-
-    function __construct($view,
-                         $type,
-                         $base='./',
-                         $args='')
+    public function __get($key)
     {
-        $this->view = $view;
-        $this->type = $type;
-        $this->base = $base;
-
-        $this->file = $base . $type . "/" . $view . ".php";
-
-        if (is_array($args))
+        if (isset($this->values[$key]))
         {
-            foreach ($args as $key => $val)
-            {
-                $this->args[$key] = $val;
-            }
+            return $this->values[$key];
         }
     }
 
-    function __get($key)
+    public function __set($key, $val)
     {
-        if (isset($this->args[$key]))
-        {
-            return $this->args[$key];
-        }
-    }
-
-    function __set($key, $val)
-    {
-        $this->args[$key] = $val;
+        $this->values[$key] = $val;
         return $this;
     }
 
-    function get($key)
+    public function get($key)
     {
         return $this->__get($key);
     }
 
-    function set($key, $val)
+    public function set($key, $val)
     {
         return $this->__set($key, $val);
     }
 
-    function merge($data_array)
+    public function merge($data_array)
     {
         foreach ($data_array as $key => $value)
         {
@@ -63,22 +37,7 @@ class View
         return $this;
     }
 
-    function show_view()
-    {
-        extract($this->args);
-        require($this->file);
-    }
-
-    function pack_view()
-    {
-        ob_start();
-        extract($this->args);
-        require($this->file);
-        return ob_get_clean();
-    }
+    abstract public function render();
 
 }
-
-
-
 
