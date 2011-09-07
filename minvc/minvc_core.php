@@ -2,6 +2,7 @@
 
 # requires the core Minimal VC classes
 require_once MINVC . '/classes/Core/Controller.class.php';
+require_once MINVC . '/classes/Core/Template.class.php';
 require_once MINVC . '/classes/Core/Router.class.php';
 require_once MINVC . '/classes/Core/View.class.php';
 
