@@ -56,5 +56,25 @@ abstract class Controller
     {
         echo "ERROR";
     }
+
+    public function get_view($viewpath)
+    {
+        $splitpath = explode('/', $viewpath);
+        $viewname  = 'v_' . array_pop($splitpath);
+        $viewfile  = $viewname . '.php';
+        $fullpath  = VPATH . implode('/', $splitpath) . '/' . $viewfile;
+        
+        if (file_exists($fullpath))
+        {
+            require_once($fullpath);
+            if (class_exists($viewname))
+            {
+                $view = new $viewname();
+                return $view;
+            }
+        }
+        return False;
+    }
+
 }
 
