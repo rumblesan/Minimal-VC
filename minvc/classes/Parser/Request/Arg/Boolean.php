@@ -10,12 +10,13 @@
             $value = intval($value);
             if ( $value === 1 )
             {
-                $this->arg_value = True;
+                $value = True;
             }
             else
             {
-                $this->arg_value = False;
+                $value = False;
             }
+            return $value;
         }
 
         public function assign_value()

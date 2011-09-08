@@ -2,16 +2,17 @@
 
     # BASE is the directory that Minimal VC is installed to
     # this is removed from the request URL to get the correct path
-    define('BASE',     '/');
+    define('BASE',  '/minvc/');
 
     # Paths to Minimal VC folder and APP folder
-    define('ROOT',     dirname(dirname(dirname(__FILE__))));
-    define('MINVC',    ROOT . '/minvc/');
-    define('APP',      ROOT . '/app/');
+    define('ROOT',  dirname(dirname(dirname(__FILE__))));
+    define('MINVC', ROOT . '/minvc/');
+    define('APP',   ROOT . '/app/');
 
     # Paths to app controllers and views
-    define('CPATH', APP  . 'controllers/');
-    define('VPATH', APP  . 'views/');
+    define('CPATH', APP . 'controllers/');
+    define('VPATH', APP . 'views/');
+    define('TPATH', APP . 'templates/');
 
     # Turn autoloading on or off
     define('AUTOLOAD', True);
@@ -24,6 +25,5 @@
 
     ini_set("include_path", APP);
 
-
-    $controller = New Router($_SERVER['REQUEST_URI'], BASE, CPATH);
+    $controller = New Router($_SERVER['REQUEST_URI'], BASE, CPATH, 'main');
 

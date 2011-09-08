@@ -27,12 +27,14 @@
         protected function validate()
         {
             if ( $this->protocol === 'GET' &&
-                 isset($_GET[$this->arg_name]) )
+                 isset($_GET[$this->arg_name]) &&
+                 $_GET[$this->arg_name] != '')
             {
                 $arg_value = $_GET[$this->arg_name];
             }
             else if ( $this->protocol === 'POST' &&
-                      isset($_POST[$this->arg_name]) )
+                     isset($_POST[$this->arg_name]) &&
+                     $_POST[$this->arg_name] != '')
             {
                 $arg_value = $_POST[$this->arg_name];
             }
