@@ -284,23 +284,3 @@ abstract class Model
         return $object_list;
     }
 }
-
-
-class User extends Model
-{
-    function __construct($dbI)
-    {
-        parent::__construct($dbI, 'id', 'users');
-
-        $this->data['id']        = '';
-        $this->data['username']  = '';
-        $this->data['nickname']  = '';
-
-        $this->data_types['id']       = 'i';
-        $this->data_types['username'] = 's';
-        $this->data_types['nickname'] = 's';
-    }
-}
-
-
-
