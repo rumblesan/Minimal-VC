@@ -10,10 +10,10 @@ class v_args extends View
 
     public function render()
     {
-        $page    = new Template("main",    "layouts", TPATH);
-        $sidebar = new Template("sidebar", "layouts", TPATH);
-        $content = new Template("content", "test",    TPATH);
-        $header  = new Template("header",  "test",    TPATH);
+        $page    = $this->get_template('main',    'layouts');
+        $sidebar = $this->get_template('sidebar', 'layouts');
+        $content = $this->get_template('content', 'test');
+        $header  = $this->get_template('header',  'test');
 
         $content->merge($this->values);
 

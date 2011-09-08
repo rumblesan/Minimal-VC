@@ -12,16 +12,16 @@ class v_main extends View
 
     public function render()
     {
-        $page    = new Template("main",    "layouts", TPATH);
-        $sidebar = new Template("sidebar", "layouts", TPATH);
-        $content = new Template("content", "loading", TPATH);
-        $header  = new Template("header",  "loading", TPATH);
+        $page    = $this->get_template('main',    'layouts');
+        $sidebar = $this->get_template('sidebar', 'layouts');
+        $content = $this->get_template('content', 'loading');
+        $header  = $this->get_template('header',  'loading');
 
         $content->merge($this->values);
 
         $page->set("sidebar", $sidebar->package());
 
-        $page->set("header",   $header->package());
+        $page->set("header",  $header->package());
         $page->set("content", $content->package());
 
         $page->render();

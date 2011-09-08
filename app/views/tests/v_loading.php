@@ -68,11 +68,10 @@ class v_loading extends View
             $header->add_cell('Not Really');
         }
 
-        $page    = new Template("main",    "layouts",   TPATH);
-        $sidebar = new Template("sidebar", "layouts",   TPATH);
-        $header  = new Template("header",  "classtest", TPATH);
-        $content = new Template("content", "classtest", TPATH);
-
+        $page    = $this->get_template('main',    'layouts');
+        $sidebar = $this->get_template('sidebar', 'layouts');
+        $header  = $this->get_template('header',  'classtest');
+        $content = $this->get_template('content', 'classtest');
 
         $content->set("table_html", $table->render());
         $content->set("form_html", $form->render());

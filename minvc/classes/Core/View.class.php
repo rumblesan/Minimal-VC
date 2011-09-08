@@ -37,6 +37,11 @@ abstract class View
         return $this;
     }
 
+    public function get_template($name, $group)
+    {
+        return new Template($name, $group, TPATH);
+    }
+
     abstract public function render();
 
 }
