@@ -3,7 +3,7 @@
 class Template
 {
     protected $template;
-    protected $type;
+    protected $path;
     protected $base;
 
     protected $file;
@@ -11,22 +11,19 @@ class Template
     protected $args = array();
 
     function __construct($template,
-                         $type,
+                         $path,
                          $base='./',
                          $args='')
     {
         $this->template = $template;
-        $this->type     = $type;
+        $this->path     = $path;
         $this->base     = $base;
 
-        $this->file = $base . $type . "/" . $template . ".php";
+        $this->file = $base . $path . "/" . $template . ".php";
 
         if (is_array($args))
         {
-            foreach ($args as $key => $val)
-            {
-                $this->args[$key] = $val;
-            }
+            $this->merge($args);
         }
     }
 
