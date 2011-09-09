@@ -28,8 +28,21 @@ class Loader
         return $this->__set($pathname, $path);
     }
 
-    public function create_class($prefix, $folder, $classpath, $args='')
+    public function create_class($prefix, $classpath, $folder, $args='')
     {
+        if ($args == '')
+        {
+            $args = array();
+        }
+        elseif(is_scalar($args))
+        {
+            $args = array($args);
+        }
+        elseif( ! is_array($args) )
+        {
+            $args = array();
+        }
+        
         $splitpath = explode('/', $classpath);
         $classname = $prefix . array_pop($splitpath);
         $classfile = $classname . '.php';
@@ -40,14 +53,8 @@ class Loader
             require_once($fullpath);
             if (class_exists($classname))
             {
-                if ($args != '')
-                {
-                    $newclass = new $classname($args);
-                }
-                else
-                {
-                    $newclass = new $classname();
-                }
+                $reflection = new ReflectionClass($classname);
+                $newclass = $reflection->newInstanceArgs($args);
                 return $newclass;
             }
         }
@@ -56,17 +63,26 @@ class Loader
 
     public function get_view($viewpath, $args='')
     {
-        return $this->create_class('v_', $this->v_path, $viewpath, $args)
+        return $this->create_class('v_', $viewpath, $this->v_path, $args)
     }
 
     public function get_model($modelpath, $args='')
     {
-        return $this->create_class('m_', $this->m_path, $viewpath, $args)
+        return $this->create_class('m_', $viewpath, $this->m_path, $args)
+    }
+    
+    public function get_controller($controllerpath, $args='')
+    {
+        return $this->create_class('c_', $controllerpath, $this->c_path, $args)
     }
 
-    public function get_template($name, $group)
+    public function get_template($templatepath, $args='')
     {
-        return new Template($name, $group, $this->t_path);
+        $splitpath  = explode('/', $templatepath);
+        $templtname = array_pop($splitpath);
+        $templtpath = implode('/', $splitpath);
+
+        return new Template($templtname, $templtpath, $this->t_path, $args);
     }
 
     abstract public function render();
