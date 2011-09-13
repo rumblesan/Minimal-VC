@@ -11,14 +11,14 @@
 
         protected $arg_value;
 
-        protected $protocol;
+        protected $array;
 
-        public function __construct($protocol, $arg_name, $default='')
+        public function __construct($array, $arg_name, $default='')
         {
             $this->arg_name  = $arg_name;
             $this->default   = $default;
 
-            $this->protocol  = $protocol;
+            $this->array  = $array;
         }
 
         #this function checks to see if the named arg exists
@@ -26,17 +26,9 @@
         #the default value
         protected function validate()
         {
-            if ( $this->protocol === 'GET' &&
-                 isset($_GET[$this->arg_name]) &&
-                 $_GET[$this->arg_name] != '')
+            if ( isset($this->array[$this->arg_name]) )
             {
-                $arg_value = $_GET[$this->arg_name];
-            }
-            else if ( $this->protocol === 'POST' &&
-                     isset($_POST[$this->arg_name]) &&
-                     $_POST[$this->arg_name] != '')
-            {
-                $arg_value = $_POST[$this->arg_name];
+                $arg_value = $this->array[$this->arg_name];
             }
             else
             {

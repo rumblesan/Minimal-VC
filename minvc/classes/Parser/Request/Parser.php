@@ -9,18 +9,47 @@
                                    'date'    => 'Parser_Request_Arg_Date',
                                    'float'   => 'Parser_Request_Arg_Float',);
 
-        private $protocols  = array('GET', 'POST');
+        private $protocols  = array('GET', 'POST', 'FILES', 'ARRAY');
         private $protocol;
+        private $arg_array = array();
 
         private $arg_values = array();
 
-        public function __construct($protocol='GET')
+        public function __construct($protocol='GET', $extra_arg='')
         {
             if ( ! in_array($protocol, $this->protocols) )
             {
-                $protocol = 'GET';
+                $protocol  = 'GET';
+                $arg_array = $_GET;
+            }
+            else if ( $protocol == 'GET' )
+            {
+                $arg_array = $_GET;
+            }
+            else if ( $protocol == 'POST' )
+            {
+                $arg_array = $_POST;
+            }
+            else if ( $protocol == 'ARRAY' )
+            {
+                if ( ! is_array($extra) )
+                {
+                    #throw an exception here eventually
+                    echo "NO ARRAY GIVEN";
+                    exit;
+                }
+                $arg_array = $extra_arg;
+            }
+            else if ( $protocol == 'FILES' )
+            {
+                $arg_array = $_FILES[$extra_arg];
+            }
+            else
+            {
+                $arg_array = $this->protocols[$protocol];
             }
             $this->protocol  = $protocol;
+            $this->arg_array = $arg_array;
         }
 
         public function add_arg($arg_name, $arg_type='string', $default='')
@@ -31,7 +60,7 @@
             }
 
             $arg_class = $this->arg_types[$arg_type];
-            $this->arg_values[$arg_name] = new $arg_class($this->protocol,
+            $this->arg_values[$arg_name] = new $arg_class($this->arg_array,
                                                           $arg_name,
                                                           $default);
             return $this;
