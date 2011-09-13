@@ -63,17 +63,17 @@ class Loader
 
     public function get_view($viewpath, $args='')
     {
-        return $this->create_class('v_', $viewpath, $this->v_path, $args)
+        return $this->create_class('v_', $viewpath, $this->v_path, $args);
     }
 
     public function get_model($modelpath, $args='')
     {
-        return $this->create_class('m_', $viewpath, $this->m_path, $args)
+        return $this->create_class('m_', $viewpath, $this->m_path, $args);
     }
     
-    public function get_controller($controllerpath, $args='')
+    public function get_controller($ctrlpath, $args='')
     {
-        return $this->create_class('c_', $controllerpath, $this->c_path, $args)
+        return $this->create_class('c_', $ctrlpath, $this->c_path, $args);
     }
 
     public function get_template($templatepath, $args='')
@@ -84,8 +84,6 @@ class Loader
 
         return new Template($templtname, $templtpath, $this->t_path, $args);
     }
-
-    abstract public function render();
 
 }
 
