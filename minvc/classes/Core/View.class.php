@@ -3,6 +3,14 @@
 abstract class View
 {
     protected $values = array();
+    protected $paths;
+
+    public function __construct($paths)
+    {
+        $this->paths = $paths;
+
+        $this->defaults();
+    }
 
     public function __get($key)
     {
@@ -39,7 +47,11 @@ abstract class View
 
     public function get_template($name, $group)
     {
-        return new Template($name, $group, TPATH);
+        return new Template($name, $group, $this->paths->template);
+    }
+
+    protected function defaults()
+    {
     }
 
     abstract public function render();

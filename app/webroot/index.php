@@ -26,12 +26,12 @@
 
     ini_set("include_path", APP);
 
-    $loader = New Loader();
-    $loader->set_path('c_path', CPATH)
-           ->set_path('v_path', VPATH)
-           ->set_path('m_path', MPATH)
-           ->set_path('t_path', TPATH);
+    $paths = New Paths();
+    $paths->set_path('controller', CPATH)
+          ->set_path('view',       VPATH)
+          ->set_path('model',      MPATH)
+          ->set_path('template',   TPATH);
 
 
-    $controller = New Router($_SERVER['REQUEST_URI'], BASE, 'main', $loader);
+    $controller = New Router($_SERVER['REQUEST_URI'], BASE, 'main', $paths);
 

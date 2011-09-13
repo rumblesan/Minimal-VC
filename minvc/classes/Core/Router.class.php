@@ -6,7 +6,7 @@ class Router
     protected $uri_base;
     protected $uri_default;
 
-    protected $loader;
+    protected $paths;
 
     protected $c_name;
     protected $c_path;
@@ -16,12 +16,12 @@ class Router
     function __construct($uri,
                          $uri_base,
                          $uri_default,
-                         $loader)
+                         $paths)
     {
         $this->uri         = $uri;
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
-        $this->loader      = $loader;
+        $this->paths       = $paths;
 
         if ($uri !=='')
         {
@@ -55,7 +55,7 @@ class Router
     {
         $file_path = '';
         $uri_parts = $this->split_uri;
-        $c_path    = $this->loader->c_path;
+        $c_path    = $this->paths->controller;
         $c_file    = '';
         $c_name    = '';
         $c_args    = array();
@@ -77,7 +77,7 @@ class Router
         {
             $this->c_file = $c_file;
             $this->c_name = $c_name;
-            $this->c_args = array_unshift($c_args, $this->loader);
+            $this->c_args = $c_args;
             return True;
         }
         return False;
@@ -90,7 +90,7 @@ class Router
             require_once($this->c_file);
             if (class_exists($this->c_name))
             {
-                $controller = new $this->c_name($this->c_args);
+                $controller = new $this->c_name($this->paths, $this->c_args);
                 $controller->run();
                 return True;
             }

@@ -2,7 +2,7 @@
 
 class v_args extends View
 {
-    public function __construct()
+    protected function defaults()
     {
         $this->values['name'] = 'World';
         $this->values['age']  = '4.54 billion';
