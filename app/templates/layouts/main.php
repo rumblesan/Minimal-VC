@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>Minimal View Controller</title>
-    <link href=<?php href('css/style.css') ?> rel=stylesheet type=text/css>
+    <link href=<?php url('css/style.css') ?> rel=stylesheet type=text/css>
 </head>
 
 <body>

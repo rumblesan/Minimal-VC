@@ -1,6 +1,6 @@
 <?php
 
-    function href($page)
+    function url($page)
     {
         echo BASE . $page;
     }
