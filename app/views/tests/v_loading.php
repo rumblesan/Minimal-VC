@@ -2,7 +2,7 @@
 
 class v_loading extends View
 {
-    public function __construct()
+    protected function defaults()
     {
         $this->values['nickname'] = 'Guy';
         $this->values['birth']    = '2000-01-01';

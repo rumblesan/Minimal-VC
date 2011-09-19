@@ -5,26 +5,29 @@ class Router
     protected $uri;
     protected $uri_base;
     protected $uri_default;
-    protected $c_path;
-    protected $split_uri = array();
 
-    protected $path;
+    protected $paths;
+
+    protected $c_name;
+    protected $c_path;
+
+    protected $split_uri = array();
     
-    function __construct($uri='',
-                         $uri_base='/',
-                         $c_path='./',
-                         $uri_default='index')
+    function __construct($uri,
+                         $uri_base,
+                         $uri_default,
+                         $paths)
     {
         $this->uri         = $uri;
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
-        $this->c_path      = $c_path;
+        $this->paths       = $paths;
 
         if ($uri !=='')
         {
             $this->format_uri()
                  ->split_uri()
-                 ->call_controller();
+                 ->controller();
         }
     }
 
@@ -48,11 +51,11 @@ class Router
         return $this;
     }
 
-    function call_controller()
+    function find_controller()
     {
         $file_path = '';
         $uri_parts = $this->split_uri;
-        $c_path    = $this->c_path;
+        $c_path    = $this->paths->controller;
         $c_file    = '';
         $c_name    = '';
         $c_args    = array();
@@ -72,10 +75,22 @@ class Router
 
         if ($c_file !== '')
         {
-            require_once($c_file);
-            if (class_exists($c_name))
+            $this->c_file = $c_file;
+            $this->c_name = $c_name;
+            $this->c_args = $c_args;
+            return True;
+        }
+        return False;
+    }
+
+    function controller()
+    {
+        if ($this->find_controller())
+        {
+            require_once($this->c_file);
+            if (class_exists($this->c_name))
             {
-                $controller = new $c_name($c_args);
+                $controller = new $this->c_name($this->paths, $this->c_args);
                 $controller->run();
                 return True;
             }

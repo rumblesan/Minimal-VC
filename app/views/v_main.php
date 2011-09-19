@@ -2,7 +2,7 @@
 
 class v_main extends View
 {
-    public function __construct()
+    protected function defaults()
     {
         $this->values['var1'] = 0;
         $this->values['var2'] = 0;

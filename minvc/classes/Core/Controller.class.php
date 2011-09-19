@@ -5,8 +5,11 @@ abstract class Controller
     protected $args      = array();
     protected $requests  = array();
 
-    function __construct($args)
+    protected $paths;
+
+    function __construct($paths, $args)
     {
+        $this->paths = $paths;
         $this->args  = $args;
 
         $this->requests['GET']     = '_get';
@@ -57,20 +60,41 @@ abstract class Controller
         echo "ERROR";
     }
 
-    public function get_view($viewpath)
+    public function get_view($viewpath, $viewargs='')
     {
+        $v_path    = $this->paths->view;
         $splitpath = explode('/', $viewpath);
         $viewname  = 'v_' . array_pop($splitpath);
         $viewfile  = $viewname . '.php';
-        $fullpath  = VPATH . implode('/', $splitpath) . '/' . $viewfile;
+        $fullpath  = $v_path . implode('/', $splitpath) . '/' . $viewfile;
         
         if (file_exists($fullpath))
         {
             require_once($fullpath);
             if (class_exists($viewname))
             {
-                $view = new $viewname();
+                $view = new $viewname($this->paths, $viewargs);
                 return $view;
+            }
+        }
+        return False;
+    }
+
+    public function get_model($modelpath, $modelargs='')
+    {
+        $m_path    = $this->paths->model;
+        $splitpath = explode('/', $modelpath);
+        $modelname = 'm_' . array_pop($splitpath);
+        $modelfile = $modelname . '.php';
+        $fullpath  = $m_path . implode('/', $splitpath) . '/' . $modelfile;
+        
+        if (file_exists($fullpath))
+        {
+            require_once($fullpath);
+            if (class_exists($modelname))
+            {
+                $model = new $modelname($modelargs);
+                return $model;
             }
         }
         return False;
