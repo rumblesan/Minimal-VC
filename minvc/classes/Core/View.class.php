@@ -1,42 +1,57 @@
 <?php
 
-abstract class View
+class View
 {
-    protected $values = array();
-    protected $paths;
+    protected $view;
+    protected $path;
+    protected $base;
 
-    public function __construct($paths)
+    protected $file;
+
+    protected $args = array();
+
+    function __construct($view,
+                         $path,
+                         $base='./',
+                         $args='')
     {
-        $this->paths = $paths;
+        $this->view = $view;
+        $this->path = $path;
+        $this->base = $base;
 
-        $this->defaults();
-    }
+        $this->file = $base . $path . "/" . $view . ".php";
 
-    public function __get($key)
-    {
-        if (isset($this->values[$key]))
+        if (is_array($args))
         {
-            return $this->values[$key];
+            $this->merge($args);
         }
     }
 
-    public function __set($key, $val)
+    function __get($key)
     {
-        $this->values[$key] = $val;
+        if (isset($this->args[$key]))
+        {
+            return $this->args[$key];
+        }
+    }
+
+    function __set($key, $val)
+    {
+        $this->args[$key] = $val;
         return $this;
     }
 
-    public function get($key)
+    function get($key)
     {
         return $this->__get($key);
     }
 
-    public function set($key, $val)
+    function set($key, $val)
     {
         return $this->__set($key, $val);
     }
 
-    public function merge($data_array)
+    function merge($data_array)
     {
         foreach ($data_array as $key => $value)
         {
@@ -45,16 +60,21 @@ abstract class View
         return $this;
     }
 
-    public function get_template($name, $group)
+    function render()
     {
-        return new Template($name, $group, $this->paths->template);
+        extract($this->args);
+        require($this->file);
     }
 
-    protected function defaults()
+    function package()
     {
+        ob_start();
+        $this->render();
+        return ob_get_clean();
     }
-
-    abstract public function render();
 
 }
+
+
+
 

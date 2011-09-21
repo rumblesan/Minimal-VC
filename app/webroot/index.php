@@ -13,13 +13,12 @@
     define('CPATH', APP . 'controllers/');
     define('MPATH', APP . 'models/');
     define('VPATH', APP . 'views/');
-    define('TPATH', APP . 'templates/');
 
     # Turn autoloading on or off
     define('AUTOLOAD', True);
 
     # Load app config files
-    require_once APP . "cfg/cfg.php";
+    require_once APP . 'cfg/cfg.php';
 
     # Get core Minimal VC files
     require_once MINVC . 'minvc_core.php';
@@ -29,8 +28,7 @@
     $paths = New Paths();
     $paths->set_path('controller', CPATH)
           ->set_path('view',       VPATH)
-          ->set_path('model',      MPATH)
-          ->set_path('template',   TPATH);
+          ->set_path('model',      MPATH);
 
 
     $controller = New Router($_SERVER['REQUEST_URI'], BASE, 'main', $paths);

@@ -60,24 +60,9 @@ abstract class Controller
         echo "ERROR";
     }
 
-    public function get_view($viewpath, $viewargs='')
+    public function get_view($name, $group)
     {
-        $v_path    = $this->paths->view;
-        $splitpath = explode('/', $viewpath);
-        $viewname  = 'v_' . array_pop($splitpath);
-        $viewfile  = $viewname . '.php';
-        $fullpath  = $v_path . implode('/', $splitpath) . '/' . $viewfile;
-        
-        if (file_exists($fullpath))
-        {
-            require_once($fullpath);
-            if (class_exists($viewname))
-            {
-                $view = new $viewname($this->paths, $viewargs);
-                return $view;
-            }
-        }
-        return False;
+        return new View($name, $group, $this->paths->view);
     }
 
     public function get_model($modelpath, $modelargs='')
