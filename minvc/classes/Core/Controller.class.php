@@ -7,10 +7,10 @@ abstract class Controller
 
     protected $paths;
 
-    function __construct($paths, $args)
+    function __construct($paths, $args='')
     {
         $this->paths = $paths;
-        $this->args  = $args;
+        $this->parse_args($args);
 
         $this->requests['GET']     = '_get';
         $this->requests['POST']    = '_post';
@@ -20,12 +20,19 @@ abstract class Controller
         $this->requests['OPTIONS'] = '_options';
     }
 
-    public function _head()
+    protected function parse_args($args)
+    {
+        //this function can be over riden in the controller
+        //to do automatic parsing of input arguments
+        $this->args = $args;
+    }
+
+    private function _head()
     {
         header('HTTP/1.0 200 OK');
     }
 
-    public function _options()
+    private function _options()
     {
         $options = array();
         foreach ($this->requests as $request => $method)
@@ -55,7 +62,7 @@ abstract class Controller
         }
     }
 
-    public function request_error()
+    private function request_error()
     {
         echo "ERROR";
     }
