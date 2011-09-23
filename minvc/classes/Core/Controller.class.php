@@ -2,15 +2,22 @@
 
 abstract class Controller
 {
-    protected $args      = array();
-    protected $requests  = array();
+    protected $args        = array();
+    protected $requests    = array();
+    protected $req_method;
 
     protected $paths;
 
-    function __construct($paths, $args='')
+    function __construct($paths, $args='', $req_method='')
     {
         $this->paths = $paths;
         $this->parse_args($args);
+        
+        if ($req_method === '')
+        {
+            $req_method = $_SERVER['REQUEST_METHOD'];
+        }
+        $this->req_method = $req_method;
 
         $this->requests['GET']     = '_get';
         $this->requests['POST']    = '_post';
@@ -49,8 +56,7 @@ abstract class Controller
 
     public function run()
     {
-        $request_type   = $_SERVER['REQUEST_METHOD'];
-        $request_method = $this->requests[$request_type];
+        $request_method = $this->requests[$this->req_method];
         if ( method_exists($this, $request_method) &&
              is_callable(array($this, $request_method)) )
         {
