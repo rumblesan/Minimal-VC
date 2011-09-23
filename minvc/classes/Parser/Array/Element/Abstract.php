@@ -28,7 +28,7 @@
         {
             if ( isset($this->array[$this->array_key]) )
             {
-                $arg_value = $_GET[$this->arg_name];
+                $arg_value = $this->array[$this->array_key];
             }
             else
             {
