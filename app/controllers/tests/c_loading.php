@@ -2,37 +2,41 @@
 
 class c_loading extends Controller
 {
-    public function _get()
+    protected function parse_args($args)
     {
-        $arg_parser = new Parser_Request_Parser();
-        $arg_parser->add_arg('nickname', 'string', 'Guy')
+        $this->args = new Parser_Request();
+        $this->args->add_arg('nickname', 'string', 'Guy')
                    ->add_arg('birth','date', '2000-01-01')
                    ->add_arg('penguins', 'int', 42)
                    ->add_arg('pies', 'float', 3.14159)
                    ->add_arg('awesome', 'boolean', False);
-        
-        
+    }
+
+    public function _get()
+    {
+
         //create the form
         $form = new Form_Form_Table('tests/loading/');
 
         $name_el = $form->add_textbox('nickname', 'Nickname');
-        $name_el->setting('value', $arg_parser->nickname);
+        $name_el->setting('value', $this->args->nickname);
 
-        $birth_el = $form->add_textbox('date', 'Date');
-        $birth_el->setting('value', $arg_parser->birth);
+        $birth_el = $form->add_textbox('birth', 'Date');
+        $birth_el->setting('value', $this->args->birth);
 
         $penguins_el = $form->add_select('penguins', 'Penguins');
         for ($i = 0; $i < 10; $i++)
         {
             $penguins_el->add_item($i, "$i penguins");
         }
-        $penguins_el->setting('selected', $arg_parser->penguins);
+        $penguins_el->setting('selected', $this->args->penguins);
 
         $pies_el = $form->add_textbox('pies', 'Pies');
-        $pies_el->setting('value', $arg_parser->pies);
+        $pies_el->setting('value', $this->args->pies);
 
         $awesome_el = $form->add_checkbox('awesome', 'Awesome?');
-        $awesome_el->setting('checked', $arg_parser->awesome);
+        $awesome_el->setting('checked', $this->args->awesome);
+
 
         //create the table
         $table = new Table_Table();
@@ -44,23 +48,23 @@ class c_loading extends Controller
 
         $new_row  = $table->add_row();
         $new_row->add_cell('Who Are You?');
-        $new_row->add_cell($arg_parser->nickname);
+        $new_row->add_cell($this->args->nickname);
 
         $new_row  = $table->add_row();
         $new_row->add_cell('Your Birthday Is?');
-        $new_row->add_cell($arg_parser->birth);
+        $new_row->add_cell($this->args->birth);
 
         $new_row  = $table->add_row();
         $new_row->add_cell('How many Penguins do you own?');
-        $new_row->add_cell($arg_parser->penguins);
+        $new_row->add_cell($this->args->penguins);
 
         $new_row  = $table->add_row();
         $new_row->add_cell('How many Pies did you eat?');
-        $new_row->add_cell($arg_parser->pies);
+        $new_row->add_cell($this->args->pies);
 
         $new_row  = $table->add_row();
         $new_row->add_cell('Is this Awesome?');
-        if ( $arg_parser->awesome )
+        if ( $this->args->awesome )
         {
             $new_row->add_cell('Hell Yeah');
         }
@@ -69,12 +73,14 @@ class c_loading extends Controller
             $new_row->add_cell('Not Really');
         }
 
+        // get the views
         $page    = $this->get_view('main',    'layouts');
         $sidebar = $this->get_view('sidebar', 'layouts');
         $header  = $this->get_view('header',  'classtest');
         $content = $this->get_view('content', 'classtest');
 
 
+        //insert data into views
         $content->set("table_html", $table->render());
         $content->set("form_html", $form->render());
 
@@ -82,7 +88,8 @@ class c_loading extends Controller
 
         $page->set("header",   $header->package());
         $page->set("content", $content->package());
-        
+
+        //render final view
         $page->render();
     }
 }

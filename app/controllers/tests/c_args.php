@@ -4,7 +4,7 @@ class c_args extends Controller
 {
     protected function parse_args($args)
     {
-        $this->args = new Parser_Array_Parser($args);
+        $this->args = new Parser_Array($args);
         $this->args->add_arg(0, 'name', 'string', 'World')
                    ->add_arg(1, 'age',  'string', '4.5 Billion');
     }
