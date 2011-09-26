@@ -7,16 +7,16 @@
         http://foo.com/bar/
     then BASE need to be set to bar
     
-    otherwise it needs to be set to a single slash  /
+    otherwise it needs to be set to a single slash  '/'
     */
     define('BASE',  '/');
 
     /*
     Paths to framework folder and APP folder
     */
-    define('ROOT',  dirname(dirname(dirname(__FILE__))));
-    define('MINVC', ROOT . '/minvc/');
-    define('APP',   ROOT . '/app/');
+    define('ROOT',      dirname(dirname(dirname(__FILE__))));
+    define('FRAMEWORK', ROOT . '/framework/');
+    define('APP',       ROOT . '/app/');
 
     /*
     Paths to app controllers and views
@@ -31,17 +31,20 @@
     define('AUTOLOAD', True);
 
     /*
-    Load app config files
-    */
-    require_once APP . 'cfg/cfg.php';
-
-    /*
     Load core file
     */
-    require_once MINVC . 'minvc_core.php';
+    require_once FRAMEWORK . 'framework_core.php';
 
     /*
-    Setthe include path
+    Load app config files if it exists
+    */
+    if (file_exists(APP . 'cfg/cfg.php'))
+    {
+        require_once APP . 'cfg/cfg.php';
+    }
+
+    /*
+    Set the include path
     */
     ini_set("include_path", APP);
 
@@ -49,6 +52,8 @@
     The Path object holds the paths to the main folders
     within the app section
     Makes it easier to pass them around
+    
+    these paths for the controller, view and model need to be set
     */
     $paths = New Paths();
     $paths->set_path('controller', CPATH)

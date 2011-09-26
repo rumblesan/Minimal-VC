@@ -1,19 +1,27 @@
 <?php
 
-# requires the core Minimal VC classes
-require_once MINVC . '/classes/Controller.class.php';
-require_once MINVC . '/classes/Paths.class.php';
-require_once MINVC . '/classes/Router.class.php';
-require_once MINVC . '/classes/Model.class.php';
-require_once MINVC . '/classes/View.class.php';
+    /*
+    requires the core framework classes
+    */
+    require_once FRAMEWORK . '/classes/Controller.class.php';
+    require_once FRAMEWORK . '/classes/Paths.class.php';
+    require_once FRAMEWORK . '/classes/Router.class.php';
+    require_once FRAMEWORK . '/classes/Model.class.php';
+    require_once FRAMEWORK . '/classes/View.class.php';
 
-if (file_exists(MINVC . '/functions/functions.php'))
-{
-    require_once MINVC . '/functions/functions.php';
-}
+    /*
+    if there is a functions file then load it
+    */
+    if (file_exists(FRAMEWORK . '/functions/functions.php'))
+    {
+        require_once FRAMEWORK . '/functions/functions.php';
+    }
 
-if (AUTOLOAD)
-{
-    require_once MINVC . '/autoload/autoload.php';
-}
-
+    /*
+    if autoloading is turned on and the autoload function
+    file exists then load it
+    */
+    if (AUTOLOAD && file_exists(FRAMEWORK . '/autoload/autoload.php'))
+    {
+        require_once FRAMEWORK . '/autoload/autoload.php';
+    }
