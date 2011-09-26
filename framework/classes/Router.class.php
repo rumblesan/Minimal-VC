@@ -2,26 +2,33 @@
 
 class Router
 {
+    /*stores the URI the webserver passes*/
     protected $uri;
+    /*the BASE of the URI. needs to be removed before routing*/
     protected $uri_base;
+    /*the default URI to use if the one passed is blank*/
     protected $uri_default;
+    /*stores the uri after it has been split and formatted*/
+    protected $uri_parts = array();
 
+    /*stores the path object*/
     protected $paths;
 
+    /*stores the name of the controller to be called*/
     protected $c_name;
+    /*stores the path to the controller*/
     protected $c_path;
-
-    protected $split_uri = array();
     
-    function __construct($uri,
-                         $uri_base,
-                         $uri_default,
-                         $paths)
+    function __construct($paths,
+                         $uri='',
+                         $uri_base='/',
+                         $uri_default='main')
     {
+        $this->paths       = $paths;
+        
         $this->uri         = $uri;
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
-        $this->paths       = $paths;
 
         if ($uri !=='')
         {
@@ -31,6 +38,9 @@ class Router
         }
     }
 
+    /*
+    remove the BASE string from the received URI
+    */
     function format_uri()
     {
         if (strpos($this->uri, $this->uri_base) === 0)
@@ -40,21 +50,33 @@ class Router
         return $this;
     }
 
+    /*
+    splits the URI up into it's parts, splitting on the slash '/'
+    
+    will change to URI to the default if the one given is blank
+    */
     function split_uri()
     {
-        $split_uri = explode ('/', $this->uri);
-        if (! (isset($split_uri[0]) && $split_uri[0]))
+        $uri_parts = explode ('/', $this->uri);
+        if ( ! (isset($uri_parts[0]) && $uri_parts[0]))
         {
-            $split_uri = explode ('/', $this->uri_default);
+            $uri_parts = explode ('/', $this->uri_default);
         }
-        $this->split_uri = $split_uri;
+        $this->uri_parts = $uri_parts;
         return $this;
     }
 
+    /*
+    takes the uri parts and searches for a controller
+    
+    can search arbitarilly deep through folders
+    any array elements left after the controller name in
+    the uri are assumed to be arguments
+    */
     function find_controller()
     {
         $file_path = '';
-        $uri_parts = $this->split_uri;
+        $uri_parts = $this->uri_parts;
         $c_path    = $this->paths->controller;
         $c_file    = '';
         $c_name    = '';
@@ -83,6 +105,12 @@ class Router
         return False;
     }
 
+    /*
+    if the controller file is found it will require the file
+    
+    once the file has been included check for the controller class
+    if it ispresent, create a new object and call the run method
+    */
     function controller()
     {
         if ($this->find_controller())
@@ -98,6 +126,12 @@ class Router
         return $this->error();
     }
 
+    /*
+    method is called when there is an error
+    
+    needs to be improved to be a general purpose exception handler
+    ideally needs to have its own controller and views
+    */
     function error()
     {
         header('Refresh: 2; URL=' . $this->uri_base);
@@ -113,6 +147,3 @@ class Router
     }
 
 }
-
-
-
