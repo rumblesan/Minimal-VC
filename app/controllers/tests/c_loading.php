@@ -39,7 +39,7 @@ class c_loading extends Controller
 
 
         //create the table
-        $table = new Table_Table();
+        $table = new Table_Basic();
         $caption = $table->add_caption('A Table of information');
 
         $header  = $table->add_header();
