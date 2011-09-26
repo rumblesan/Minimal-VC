@@ -1,5 +1,12 @@
 <?php
 
+/*
+This class is meant to be used to contain paths to folders
+it's passed through the Router to the Controller
+
+means that global Defines aren't needed when creating Views and Models
+should make it easier to test everything
+*/
 class Paths
 {
     protected $paths = array();
