@@ -16,7 +16,7 @@ class c_loading extends Controller
     {
 
         //create the form
-        $form = new Form_Form_Table('tests/loading/');
+        $form = new Form_Table('tests/loading/');
 
         $name_el = $form->add_textbox('nickname', 'Nickname');
         $name_el->setting('value', $this->args->nickname);

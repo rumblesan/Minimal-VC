@@ -1,6 +1,6 @@
 <?php
 
-    class Form_Form_Table extends Form_Form_Abstract
+    class Form_Table extends Form_Abstract
     {
         private $no_headers = array();
 

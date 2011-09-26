@@ -1,6 +1,6 @@
 <?php
 
-    abstract class Form_Form_Abstract
+    abstract class Form_Abstract
     {
         protected $action_url;
         protected $method;
@@ -15,7 +15,7 @@
 
         public function __construct($url, $method='GET')
         {
-            $this->action_url = BASE . $url;
+            $this->action_url = $url;
 
             if ( ! in_array($method, $this->method_list) )
             {
