@@ -1,7 +1,7 @@
 <?php
 
     #Used for parsing integer arguments
-    class Parser_Array_Element_Int extends Parser_Array_Element_Abstract
+    class Parser_Arg_Int extends Parser_Arg_Abstract
     {
         public function assign_value()
         {

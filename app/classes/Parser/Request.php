@@ -1,21 +1,22 @@
 <?php
 
-    #Used for easily parsing arguments in GET and POST requests
-    class Parser_Request_Parser
+    #Used for parsing arguments in GET and POST requests
+    class Parser_Request
     {
-        private $arg_types = array('string'  => 'Parser_Request_Arg_String',
-                                   'int'     => 'Parser_Request_Arg_Int',
-                                   'boolean' => 'Parser_Request_Arg_Boolean',
-                                   'date'    => 'Parser_Request_Arg_Date',
-                                   'float'   => 'Parser_Request_Arg_Float',);
+        private $arg_types = array('string'  => 'Parser_Arg_String',
+                                   'int'     => 'Parser_Arg_Int',
+                                   'boolean' => 'Parser_Arg_Boolean',
+                                   'date'    => 'Parser_Arg_Date',
+                                   'float'   => 'Parser_Arg_Float',);
 
-        private $protocols  = array('GET', 'POST', 'FILES', 'ARRAY');
+        private $protocols  = array('GET', 'POST');
         private $protocol;
+
         private $arg_array = array();
 
         private $arg_values = array();
 
-        public function __construct($protocol='GET', $extra_arg='')
+        public function __construct($protocol='GET')
         {
             if ( ! in_array($protocol, $this->protocols) )
             {
@@ -30,24 +31,11 @@
             {
                 $arg_array = $_POST;
             }
-            else if ( $protocol == 'ARRAY' )
-            {
-                if ( ! is_array($extra) )
-                {
-                    #throw an exception here eventually
-                    echo "NO ARRAY GIVEN";
-                    exit;
-                }
-                $arg_array = $extra_arg;
-            }
-            else if ( $protocol == 'FILES' )
-            {
-                $arg_array = $_FILES[$extra_arg];
-            }
             else
             {
                 $arg_array = $this->protocols[$protocol];
             }
+
             $this->protocol  = $protocol;
             $this->arg_array = $arg_array;
         }
@@ -61,6 +49,7 @@
 
             $arg_class = $this->arg_types[$arg_type];
             $this->arg_values[$arg_name] = new $arg_class($this->arg_array,
+                                                          $arg_name,
                                                           $arg_name,
                                                           $default);
             return $this;
