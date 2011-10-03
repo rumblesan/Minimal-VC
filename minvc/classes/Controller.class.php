@@ -2,15 +2,22 @@
 
 abstract class Controller
 {
-    protected $args      = array();
-    protected $requests  = array();
+    protected $args        = array();
+    protected $requests    = array();
+    protected $req_method;
 
     protected $paths;
 
-    function __construct($paths, $args)
+    function __construct($paths, $args='', $req_method='')
     {
         $this->paths = $paths;
-        $this->args  = $args;
+        $this->parse_args($args);
+        
+        if ($req_method === '')
+        {
+            $req_method = $_SERVER['REQUEST_METHOD'];
+        }
+        $this->req_method = $req_method;
 
         $this->requests['GET']     = '_get';
         $this->requests['POST']    = '_post';
@@ -20,12 +27,19 @@ abstract class Controller
         $this->requests['OPTIONS'] = '_options';
     }
 
-    public function _head()
+    protected function parse_args($args)
+    {
+        //this function can be over riden in the controller
+        //to do automatic parsing of input arguments
+        $this->args = $args;
+    }
+
+    private function _head()
     {
         header('HTTP/1.0 200 OK');
     }
 
-    public function _options()
+    private function _options()
     {
         $options = array();
         foreach ($this->requests as $request => $method)
@@ -42,8 +56,7 @@ abstract class Controller
 
     public function run()
     {
-        $request_type   = $_SERVER['REQUEST_METHOD'];
-        $request_method = $this->requests[$request_type];
+        $request_method = $this->requests[$this->req_method];
         if ( method_exists($this, $request_method) &&
              is_callable(array($this, $request_method)) )
         {
@@ -55,29 +68,14 @@ abstract class Controller
         }
     }
 
-    public function request_error()
+    private function request_error()
     {
         echo "ERROR";
     }
 
-    public function get_view($viewpath, $viewargs='')
+    public function get_view($name, $group)
     {
-        $v_path    = $this->paths->view;
-        $splitpath = explode('/', $viewpath);
-        $viewname  = 'v_' . array_pop($splitpath);
-        $viewfile  = $viewname . '.php';
-        $fullpath  = $v_path . implode('/', $splitpath) . '/' . $viewfile;
-        
-        if (file_exists($fullpath))
-        {
-            require_once($fullpath);
-            if (class_exists($viewname))
-            {
-                $view = new $viewname($this->paths, $viewargs);
-                return $view;
-            }
-        }
-        return False;
+        return new View($name, $group, $this->paths->view);
     }
 
     public function get_model($modelpath, $modelargs='')

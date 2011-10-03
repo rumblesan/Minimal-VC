@@ -2,20 +2,28 @@
 
 class c_args extends Controller
 {
+    protected function parse_args($args)
+    {
+        $this->args = new Parser_Array_Parser($args);
+        $this->args->add_arg(0, 'name', 'string', 'World')
+                   ->add_arg(1, 'age',  'string', '4.5 Billion');
+    }
+
     public function _get()
     {
-        $view = $this->get_view('tests/args');
+        $page    = $this->get_view('main',    'layouts');
+        $sidebar = $this->get_view('sidebar', 'layouts');
+        $content = $this->get_view('content', 'test');
+        $header  = $this->get_view('header',  'test');
 
-        if (isset($this->args[0]) && $this->args[0])
-        {
-            $view->name = $this->args[0];
-        }
+        $content->set('name', $this->args->name)
+                ->set('age',  $this->args->age);
 
-        if (isset($this->args[1]) && $this->args[1])
-        {
-            $view->age  = $this->args[1];
-        }
+        $page->set('sidebar', $sidebar->package());
 
-        $view->render();
+        $page->set('header',   $header->package());
+        $page->set('content', $content->package());
+
+        $page->render();
     }
 }

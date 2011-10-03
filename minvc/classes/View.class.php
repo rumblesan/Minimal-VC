@@ -1,8 +1,8 @@
 <?php
 
-class Template
+class View
 {
-    protected $template;
+    protected $view;
     protected $path;
     protected $base;
 
@@ -10,16 +10,16 @@ class Template
 
     protected $args = array();
 
-    function __construct($template,
+    function __construct($view,
                          $path,
                          $base='./',
                          $args='')
     {
-        $this->template = $template;
-        $this->path     = $path;
-        $this->base     = $base;
+        $this->view = $view;
+        $this->path = $path;
+        $this->base = $base;
 
-        $this->file = $base . $path . "/" . $template . ".php";
+        $this->file = $base . $path . "/" . $view . ".php";
 
         if (is_array($args))
         {

@@ -24,7 +24,7 @@
                                 $arg_type='string',
                                 $default='')
         {
-            if ( ! isset($this->types[$arg_type]) )
+            if ( ! isset($this->arg_types[$arg_type]) )
             {
                 $arg_type = 'string';
             }
