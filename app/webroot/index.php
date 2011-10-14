@@ -49,19 +49,7 @@
     ini_set("include_path", APP);
 
     /*
-    The Path object holds the paths to the main folders
-    within the app section
-    Makes it easier to pass them around
-    
-    these paths for the controller, view and model need to be set
-    */
-    $paths = New Paths();
-    $paths->set_path('controller', CPATH)
-          ->set_path('view',       VPATH)
-          ->set_path('model',      MPATH);
-
-    /*
     The Router takes the URL, parses it and then runs the correct controller
     */
-    $router = New Router($paths, $_SERVER['REQUEST_URI'], BASE, 'main');
+    $router = New Router(CPATH, $_SERVER['REQUEST_URI'], BASE, 'main');
 

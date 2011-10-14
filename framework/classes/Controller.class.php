@@ -11,13 +11,8 @@ abstract class Controller
     //the request method used to call the controller
     protected $req_method;
 
-    //stores the path object
-    protected $paths;
-
-    function __construct($paths, $args='', $req_method='')
+    function __construct($args='', $req_method='')
     {
-        $this->paths = $paths;
-        
         /*
         $args is assumed to be an array
         */
@@ -121,37 +116,6 @@ abstract class Controller
     private function request_error()
     {
         echo "ERROR";
-    }
-
-    /*
-    return an object for the specified View
-    */
-    public function get_view($name, $group)
-    {
-        return new View($name, $group, $this->paths->view);
-    }
-
-    /*
-    return an object for the specified Model
-    */
-    public function get_model($modelpath, $modelargs='')
-    {
-        $m_path    = $this->paths->model;
-        $splitpath = explode('/', $modelpath);
-        $modelname = 'm_' . array_pop($splitpath);
-        $modelfile = $modelname . '.php';
-        $fullpath  = $m_path . implode('/', $splitpath) . '/' . $modelfile;
-        
-        if (file_exists($fullpath))
-        {
-            require_once($fullpath);
-            if (class_exists($modelname))
-            {
-                $model = new $modelname($modelargs);
-                return $model;
-            }
-        }
-        return False;
     }
 
 }

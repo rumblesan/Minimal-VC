@@ -74,11 +74,10 @@ class c_loading extends Controller
         }
 
         // get the views
-        $page    = $this->get_view('main',    'layouts');
-        $sidebar = $this->get_view('sidebar', 'layouts');
-        $header  = $this->get_view('header',  'classtest');
-        $content = $this->get_view('content', 'classtest');
-
+        $page    = new View('main',    'layouts',   VPATH);
+        $sidebar = new View('sidebar', 'layouts',   VPATH);
+        $content = new View('content', 'classtest', VPATH);
+        $header  = new View('header',  'classtest', VPATH);
 
         //insert data into views
         $content->set("table_html", $table->render());
