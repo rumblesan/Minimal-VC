@@ -13,13 +13,17 @@ class Router
     /*stores the uri after it has been split and formatted*/
     private $uri_parts = array();
 
-    /*stores the path object*/
-    private $paths;
+    /*stores the name of the controller class*/
+    private $c_name = '';
+    /*stores the folder path to the controller file*/
+    private $c_path = '';
+    /*stores the name of the controller file*/
+    private $c_file = '';
+    /*stores the arguments for the controller*/
+    private $c_args = array();
 
-    /*stores the name of the controller to be called*/
-    private $c_name;
-    /*stores the path to the controller*/
-    private $c_path;
+    /*stores the name of the controller folder in the app directory*/
+    private $c_folder;
 
     /*
     stores the output of the PHP script before sending it 
@@ -27,18 +31,18 @@ class Router
     */
     private $page_output;
 
-    public function __construct($paths,
+    public function __construct($c_folder,
                                 $uri='',
                                 $uri_base='/',
                                 $uri_default='main')
     {
-        $this->paths       = $paths;
-
         $uri               = explode('?', $uri);
         $this->uri         = $uri[0];
         $this->uri_args    = $uri[1];
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
+        
+        $this->c_folder    = $c_folder;
     }
 
     /*
@@ -50,7 +54,9 @@ class Router
     */
     public function run()
     {
-        $page_found = $this->format_uri()->split_uri()->find_controller();
+        $page_found = $this->format_uri()
+                           ->split_uri()
+                           ->find_controller();
         if ( ! $page_found )
         {
             /*
@@ -86,7 +92,8 @@ class Router
     {
         $this->uri = 'error/error_' . $error_name;
 
-        $page_found = $this->split_uri()->find_controller();
+        $page_found = $this->split_uri()
+                           ->find_controller();
         if ( ! $page_found )
         {
             /*
@@ -187,34 +194,27 @@ class Router
     */
     private function find_controller()
     {
+        $found   = False;
+
         $file_path = '';
         $uri_parts = $this->uri_parts;
-        $c_path    = $this->paths->controller;
-        $c_file    = '';
-        $c_name    = '';
-        $c_args    = array();
 
-        while ($section = array_shift($uri_parts))
+        while ($path_section = array_shift($uri_parts))
         {
-            $check_path = $c_path . $file_path . 'c_' . $section . '.php';
-            if (file_exists($check_path))
+            $this->c_path = $this->c_folder . $file_path;
+            $this->c_name = 'c_' . $path_section;
+            $this->c_file = $c_path . $this->c_name . '.php';
+            $this->c_args = $uri_parts;
+            
+            if (file_exists($this->c_file))
             {
-                $c_file = $check_path;
-                $c_name = 'c_' . $section;
-                $c_args = $uri_parts;
+                $found = True;
                 break;
             }
-            $file_path .= $section . '/';
+            $file_path .= $path_section . '/';
         }
 
-        if ($c_file !== '')
-        {
-            $this->c_file = $c_file;
-            $this->c_name = $c_name;
-            $this->c_args = $c_args;
-            return True;
-        }
-        return False;
+        return $found;
     }
 
     /*
@@ -224,6 +224,7 @@ class Router
     private function run_controller()
     {
         require_once($this->c_file);
+        
         if ( ! class_exists($this->c_name) )
         {
             return False;
@@ -231,8 +232,7 @@ class Router
 
         try
         {
-            $controller = new $this->c_name($this->paths,
-                                            $this->c_args);
+            $controller = new $this->c_name($this->c_args);
             /*
             save the output of the controller into a buffer
             this is done so that when an error is raised we can
