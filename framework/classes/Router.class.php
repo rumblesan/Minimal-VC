@@ -2,46 +2,158 @@
 
 class Router
 {
-    /*stores the URI the webserver passes*/
-    protected $uri;
+    /*stores the URI the webserver passes minus the GET args*/
+    private $uri;
+    /*the GET arguments passed with the URI*/
+    private $uri_args;
     /*the BASE of the URI. needs to be removed before routing*/
-    protected $uri_base;
+    private $uri_base;
     /*the default URI to use if the one passed is blank*/
-    protected $uri_default;
+    private $uri_default;
     /*stores the uri after it has been split and formatted*/
-    protected $uri_parts = array();
+    private $uri_parts = array();
 
     /*stores the path object*/
-    protected $paths;
+    private $paths;
 
     /*stores the name of the controller to be called*/
-    protected $c_name;
+    private $c_name;
     /*stores the path to the controller*/
-    protected $c_path;
-    
-    function __construct($paths,
-                         $uri='',
-                         $uri_base='/',
-                         $uri_default='main')
+    private $c_path;
+
+    /*
+    stores the output of the PHP script before sending it 
+    to the output buffer. This is done to make error handling easier
+    */
+    private $page_output;
+
+    public function __construct($paths,
+                                $uri='',
+                                $uri_base='/',
+                                $uri_default='main')
     {
         $this->paths       = $paths;
-        
-        $this->uri         = $uri;
+
+        $uri               = explode('?', $uri);
+        $this->uri         = $uri[0];
+        $this->uri_args    = $uri[1];
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
+    }
 
-        if ($uri !=='')
+    /*
+    get the router to find the controller for the given URI
+    if a controller is found then its output is stored in the page_output
+    as long as there are no errors then the page_output will be echoed
+
+    if a controller isn't found then check for the 404 error page
+    */
+    public function run()
+    {
+        $page_found = $this->format_uri()->split_uri()->find_controller();
+        if ( ! $page_found )
         {
-            $this->format_uri()
-                 ->split_uri()
-                 ->controller();
+            /*
+            the page couldn't be found
+            raise a 404 error
+            */
+            $this->error('404');
         }
+
+        $page_loaded = $this->run_controller();
+        if ( ! $page_loaded )
+        {
+            /*
+            there was an error with the controller files
+            raise a 500 error
+            */
+            $this->error('500');
+        }
+
+        /*
+        everything is ok so echo the controllers output
+        */
+        echo $this->page_output;
+    }
+
+    /*
+    set the uri to the path for the 404 error page
+    if it's found then call it
+
+    if not then use the fallback error method
+    */
+    private function error($error_name, $args='')
+    {
+        $this->uri = 'error/error_' . $error_name;
+
+        $page_found = $this->split_uri()->find_controller();
+        if ( ! $page_found )
+        {
+            /*
+            a controller for the specified error couldn't be found
+            use the fallback error method to display a page
+            */
+            $this->error_fallback();
+        }
+
+        /*
+        this allows different arguments to be passed to the error page
+        for example, an exception object
+        */
+        if ( is_array($args) )
+        {
+            $this->c_args = $args;
+        }
+        elseif ( $args !== '' )
+        {
+            $this->c_args = array($args);
+        }
+        else
+        {
+            $this->c_args = array();
+        }
+
+        $page_loaded = $this->run_controller();
+        if ( ! $page_loaded )
+        {
+            /*
+            there was an error with the controller files
+            use the fallback error method
+
+            we could raise a 500 error here but if the problem
+            is with the 500 error controller file then we end up with 
+            a circular problem
+            */
+            $this->error_fallback();
+        }
+
+        /*
+        everything is ok so echo the controllers output
+        */
+        echo $this->page_output;
+        die;
+    }
+
+    /*
+    if the controller for the error page can't be found then call this method
+    */
+    private function error_fallback()
+    {
+        $html  = '<html>';
+        $html .= '<head><title>Uh Oh...</title></head>';
+        $html .= '<body>';
+        $html .= '<h1>Uh Oh...</h1>';
+        $html .= '<h2>Somethings gone wrong</h2>';
+        $html .= '</body>';
+        $html .= '</html>';
+        echo $html;
+        die;
     }
 
     /*
     remove the BASE string from the received URI
     */
-    function format_uri()
+    private function format_uri()
     {
         if (strpos($this->uri, $this->uri_base) === 0)
         {
@@ -55,7 +167,7 @@ class Router
     
     will change to URI to the default if the one given is blank
     */
-    function split_uri()
+    private function split_uri()
     {
         $uri_parts = explode ('/', $this->uri);
         if ( ! (isset($uri_parts[0]) && $uri_parts[0]))
@@ -73,7 +185,7 @@ class Router
     any array elements left after the controller name in
     the uri are assumed to be arguments
     */
-    function find_controller()
+    private function find_controller()
     {
         $file_path = '';
         $uri_parts = $this->uri_parts;
@@ -106,44 +218,46 @@ class Router
     }
 
     /*
-    if the controller file is found it will require the file
-    
-    once the file has been included check for the controller class
-    if it ispresent, create a new object and call the run method
+    will include the file and then check for the controller class
+    if it is present, create a new object and call the run method
     */
-    function controller()
+    private function run_controller()
     {
-        if ($this->find_controller())
+        require_once($this->c_file);
+        if ( ! class_exists($this->c_name) )
         {
-            require_once($this->c_file);
-            if (class_exists($this->c_name))
-            {
-                $controller = new $this->c_name($this->paths, $this->c_args);
-                $controller->run();
-                return True;
-            }
+            return False;
         }
-        return $this->error();
-    }
 
-    /*
-    method is called when there is an error
-    
-    needs to be improved to be a general purpose exception handler
-    ideally needs to have its own controller and views
-    */
-    function error()
-    {
-        header('Refresh: 2; URL=' . $this->uri_base);
-        $html  = '<html>';
-        $html .= '<head><title>Uh Oh...</title></head>';
-        $html .= '<body>';
-        $html .= '<h1>Somethings gone wrong</h1>';
-        $html .= 'Lets go back to the front page';
-        $html .= '</body>';
-        $html .= '</html>';
-        echo $html;
-        return False;
+        try
+        {
+            $controller = new $this->c_name($this->paths,
+                                            $this->c_args);
+            /*
+            save the output of the controller into a buffer
+            this is done so that when an error is raised we can
+            send the headers we want without having already sent output
+            */
+            ob_start();
+            $controller->run();
+            $this->page_output = ob_get_clean();
+            return True;
+        }
+        catch (Exception $e)
+        {
+            /*
+            call ob_end_clean here to finish getting the buffer contents
+            we don't need it anymore so we can discard it
+            */
+            ob_end_clean();
+
+            /*
+            call the error method
+            find the exception error controller
+            pass it the exception object so it can pull out the information
+            */
+            $this->error('exception', $e);
+        }
     }
 
 }
