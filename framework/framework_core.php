@@ -10,11 +10,16 @@
     require_once FRAMEWORK . '/classes/View.class.php';
 
     /*
-    if there is a functions file then load it
+    load any files in the function directory
     */
-    if (file_exists(FRAMEWORK . '/functions/functions.php'))
+    $function_dir = FRAMEWORK . '/functions/';
+    if ( is_dir($function_dir) )
     {
-        require_once FRAMEWORK . '/functions/functions.php';
+        $function_files = glob($function_dir . '*.php');
+        foreach ( $function_files as $function_file)
+        {
+            require_once $function_file;
+        }
     }
 
     /*
