@@ -38,9 +38,14 @@
     /*
     Load app config files if it exists
     */
-    if (file_exists(APP . 'cfg/cfg.php'))
+    $cfg_dir = APP . 'cfg/';
+    if ( is_dir($cfg_dir) )
     {
-        require_once APP . 'cfg/cfg.php';
+        $cfg_files = glob($cfg_dir . '*.php');
+        foreach ( $cfg_files as $cfg_file)
+        {
+            require_once $cfg_file;
+        }
     }
 
     /*
