@@ -1,22 +1,21 @@
 <?php
 
     #Used for parsing boolean arguments
-    class Parser_Request_Arg_Boolean extends Parser_Request_Arg_Abstract
+    class Parser_Arg_Boolean extends Parser_Arg_Abstract
     {
-        #argument values from the GET/POST array are always strings
         #this function converts strings to Boolean Values
         private function make_bool($value)
         {
             $value = intval($value);
             if ( $value === 1 )
             {
-                $value = True;
+                $arg_value = True;
             }
             else
             {
-                $value = False;
+                $arg_value = False;
             }
-            return $value;
+            return $arg_value;
         }
 
         public function assign_value()

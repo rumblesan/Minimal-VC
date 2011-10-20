@@ -12,11 +12,11 @@ class c_main extends Controller
         $test->set('var3', 200);
 
         $var_list = $test->get_var_data();
-        
-        $page    = $this->get_view('main',    'layouts');
-        $sidebar = $this->get_view('sidebar', 'layouts');
-        $content = $this->get_view('content', 'loading');
-        $header  = $this->get_view('header',  'loading');
+
+        $page    = new View('main',    'layouts', VPATH);
+        $sidebar = new View('sidebar', 'layouts', VPATH);
+        $content = new View('content', 'loading', VPATH);
+        $header  = new View('header',  'loading', VPATH);
 
         $content->merge($test->get_var_data());
 
@@ -29,4 +29,3 @@ class c_main extends Controller
 
     }
 }
-

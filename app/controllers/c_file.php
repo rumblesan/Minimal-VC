@@ -2,18 +2,11 @@
 
 class c_file extends Controller
 {
-    public $filename = '';
-
-    function __construct($args)
+    protected function parse_args($args)
     {
-        parent::__construct($args);
+        $this->args = new Parser_Array($args);
+        $this->args->add_arg(0, 'filename', 'string', 'basic');
 
-        $filename = $this->args[0];
-        if ($filename == '')
-        {
-            $filename = 'basic';
-        }
-        $this->filename = $filename . '.txt';
         $this->filepath = FILES . $this->filename;
     }
 
@@ -66,5 +59,5 @@ class c_file extends Controller
             echo $this->filename . " does not exist\n";
         }
     }
-}
 
+}

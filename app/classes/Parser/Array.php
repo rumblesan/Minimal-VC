@@ -1,22 +1,21 @@
 <?php
 
-    #Main Array Parser class.
-    #Used for easily parsing arguments in GET and POST requests
-    class Parser_Array_Parser
+    #Used for parsing arguments in arrays
+    class Parser_Array
     {
-        private $arg_types = array('string'  => 'Parser_Array_Element_String',
-                                   'int'     => 'Parser_Array_Element_Int',
-                                   'boolean' => 'Parser_Array_Element_Boolean',
-                                   'date'    => 'Parser_Array_Element_Date',
-                                   'float'   => 'Parser_Array_Element_Float');
+        private $arg_types = array('string'  => 'Parser_Arg_String',
+                                   'int'     => 'Parser_Arg_Int',
+                                   'boolean' => 'Parser_Arg_Boolean',
+                                   'date'    => 'Parser_Arg_Date',
+                                   'float'   => 'Parser_Arg_Float');
 
-        private $array;
+        private $arg_array;
 
         private $arg_values = array();
 
-        public function __construct($array)
+        public function __construct($arg_array)
         {
-            $this->array  = $array;
+            $this->arg_array = $arg_array;
         }
 
         public function add_arg($arg_key,
@@ -30,7 +29,7 @@
             }
 
             $arg_class = $this->arg_types[$arg_type];
-            $this->arg_values[$arg_name] = new $arg_class($this->array,
+            $this->arg_values[$arg_name] = new $arg_class($this->arg_array,
                                                           $arg_key,
                                                           $arg_name,
                                                           $default);
@@ -43,6 +42,7 @@
             {
                 $this->arg_values[$arg_name]->setting($setting, $value);
             }
+            return $this;
         }
 
         public function get_arg_value($arg_name)

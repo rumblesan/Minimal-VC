@@ -1,6 +1,6 @@
 <?php
 
-class Table_Table extends Table_Table_Abstract
+class Table_Basic extends Table_Abstract
 {
     private $rows    = array();
 

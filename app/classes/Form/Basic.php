@@ -1,6 +1,6 @@
 <?php
 
-    class Form_Form_Basic extends Form_Form_Abstract
+    class Form_Basic extends Form_Abstract
     {
         private $no_labels = array();
 

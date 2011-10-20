@@ -1,7 +1,7 @@
 <?php
 
-    #All other element classes inherit from this
-    abstract class Parser_Array_Element_Abstract
+    #All other arg classes inherit from this
+    abstract class Parser_Arg_Abstract
     {
         protected $arg_name;
         protected $default;

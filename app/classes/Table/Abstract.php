@@ -1,6 +1,6 @@
 <?php
 
-abstract class Table_Table_Abstract
+abstract class Table_Abstract
 {
     protected $css_id;
     protected $css_class;

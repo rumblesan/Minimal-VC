@@ -1,12 +1,12 @@
 <?php
 
     #Used for parsing date arguments
-    class Parser_Request_Arg_Date extends Parser_Request_Arg_Abstract
+    class Parser_Arg_Date extends Parser_Arg_Abstract
     {
         #overriding the abstract classes constructor to define settings
-        public function __construct($protocol, $arg_name, $default='')
+        public function __construct($array, $array_key, $arg_name, $default='')
         {
-            parent::__construct($protocol, $arg_name, $default);
+            parent::__construct($array, $array_key, $arg_name, $default);
 
             $this->settings['format'] = 'Y-m-d';
         }
