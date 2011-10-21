@@ -203,7 +203,7 @@ class Router
         {
             $this->c_path = $this->c_folder . $file_path;
             $this->c_name = 'c_' . $path_section;
-            $this->c_file = $c_path . $this->c_name . '.php';
+            $this->c_file = $this->c_path . $this->c_name . '.php';
             $this->c_args = $uri_parts;
             
             if (file_exists($this->c_file))
