@@ -5,7 +5,7 @@ class Router
     /*stores the URI the webserver passes minus the GET args*/
     private $uri;
     /*the GET arguments passed with the URI*/
-    private $uri_args;
+    private $get_args;
     /*the BASE of the URI. needs to be removed before routing*/
     private $uri_base;
     /*the default URI to use if the one passed is blank*/
@@ -38,7 +38,7 @@ class Router
     {
         $uri               = explode('?', $uri);
         $this->uri         = $uri[0];
-        $this->uri_args    = $uri[1];
+        $this->get_args    = isset($uri[1]) ? $uri[1] : array();
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
         
