@@ -58,4 +58,5 @@
     The Router takes the URL, parses it and then runs the correct controller
     */
     $router = New Router(CPATH, $_SERVER['REQUEST_URI'], BASE, DEFAULT_URI);
+    $router->run();
 
