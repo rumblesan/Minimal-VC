@@ -166,6 +166,7 @@ class Router
         {
             $this->uri = substr($this->uri, strlen($this->uri_base));
         }
+        $this->uri = rtrim($this->uri, '/');
         return $this;
     }
 
