@@ -3,19 +3,31 @@
 abstract class Controller
 {
     //stores the arguments passed to the controller
-    protected $args        = array();
+    protected $args            = array();
 
     //stores the $_POST array
-    protected $post_args   = array();
+    protected $post_args       = array();
 
     //stores the $_GET array
-    protected $get_args    = array();
+    protected $get_args        = array();
 
     //stores a function name for each request type
-    protected $requests    = array();
+    protected $request_methods = array();
+
+    //stores the http response header codes and strings
+    protected $status_codes    = array();
+
+    //set to true if request uses HEAD method
+    //will cause the framework to kill the script
+    //after the correct headers have been set so
+    //we only send them back and not any content
+    protected $head_request    = False;
 
     //the request method used to call the controller
     protected $req_method;
+
+    //stores the path object
+    protected $paths;
 
     function __construct($args='', $req_method='')
     {
@@ -48,6 +60,8 @@ abstract class Controller
         $this->requests['DELETE']  = '_delete';
         $this->requests['HEAD']    = '_head';
         $this->requests['OPTIONS'] = '_options';
+
+        $this->setup_codes();
     }
 
     /*
@@ -62,14 +76,60 @@ abstract class Controller
     }
 
     /*
-    an HTTP HEAD request is just supposed to send back the HEADER
-    
-    *TODO* not sure this is meant to work like this
-           need to read the spec
+       Setup the headers attribute array to contain HTTP return HEADER
+       text kyed on the return code
+    */
+    protected function setup_codes()
+    {
+        //Success codes
+        $this->status_codes[200] = 'OK';
+        $this->status_codes[201] = 'Created';
+
+        //Redirect codes
+        $this->status_codes[304] = 'Not Modified';
+
+        //Client Error codes
+        $this->status_codes[400] = 'Bad Request';
+        $this->status_codes[401] = 'Unauthorized';
+        $this->status_codes[403] = 'Forbidden';
+        $this->status_codes[404] = 'Not Found';
+        $this->status_codes[405] = 'Method Not Allowed';
+
+        //Server Error codes
+        $this->status_codes[500] = 'Internal Server Error';
+        $this->status_codes[501] = 'Not Implemented';
+        $this->status_codes[503] = 'Service Unavailable';
+    }
+
+    protected function response_header($code, $close=True)
+    {
+        if ( ! isset($this->status_codes[$code]) )
+        {
+            $code = 200;
+        }
+        $codetext   = $this->status_codes[$code];
+        $headertext = 'HTTP/1.1 ' . $code . ' ' . $codetext;
+        header($headertext);
+        if ($close === True)
+        {
+            header('Connection: close');
+        }
+
+        if ($this->head_request === True)
+        {
+            exit;
+        }
+    }
+
+    /*
+    an HTTP HEAD request is just supposed to send back the HEADERs
+    The request needs to send back the same HEADERs as a GET request
     */
     private function _head()
     {
-        header('HTTP/1.0 200 OK');
+        $this->head_request = True;
+        $this->req_method   = 'GET';
+        $this->run();
     }
 
     /*
@@ -81,7 +141,7 @@ abstract class Controller
     
     *TODO* need to find out what the correct format for this is
     */
-    private function _options()
+    protected function _options()
     {
         $options = array();
         foreach ($this->requests as $request => $method)
