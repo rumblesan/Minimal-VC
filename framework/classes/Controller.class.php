@@ -117,6 +117,7 @@ abstract class Controller
 
         if ($this->head_request === True)
         {
+            flush();
             exit;
         }
     }
@@ -161,7 +162,7 @@ abstract class Controller
     
     checks to see if the correct method for the request is available
     if it is call it
-    if it isn't, call the request_error method
+    if it isn't return a 405 error
     */
     public function run()
     {
@@ -173,18 +174,8 @@ abstract class Controller
         }
         else
         {
-            $this->request_error();
+            $this->response_header(405);
         }
-    }
-
-    /*
-    called on a request error
-    
-    *TODO* should probablly raise an exception
-    */
-    private function request_error()
-    {
-        echo "ERROR";
     }
 
 }
