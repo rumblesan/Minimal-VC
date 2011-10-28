@@ -4,10 +4,16 @@ abstract class Controller
 {
     //stores the arguments passed to the controller
     protected $args        = array();
-    
+
+    //stores the $_POST array
+    protected $post_args   = array();
+
+    //stores the $_GET array
+    protected $get_args    = array();
+
     //stores a function name for each request type
     protected $requests    = array();
-    
+
     //the request method used to call the controller
     protected $req_method;
 
@@ -49,7 +55,9 @@ abstract class Controller
     */
     protected function parse_args($args)
     {
-        $this->args = $args;
+        $this->args      = $args;
+        $this->post_args = $_POST;
+        $this->get_args  = $_GET;
     }
 
     /*
