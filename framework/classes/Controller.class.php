@@ -44,6 +44,7 @@ abstract class Controller
         $this->requests['GET']     = '_get';
         $this->requests['POST']    = '_post';
         $this->requests['PUT']     = '_put';
+        $this->requests['PATCH']   = '_patch';
         $this->requests['DELETE']  = '_delete';
         $this->requests['HEAD']    = '_head';
         $this->requests['OPTIONS'] = '_options';
