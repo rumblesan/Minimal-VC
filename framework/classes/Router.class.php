@@ -158,7 +158,8 @@ class Router
     }
 
     /*
-    remove the BASE string from the received URI
+    removes the BASE string from the received URI
+    and trims off any trailing slashes
     */
     private function format_uri()
     {
@@ -244,8 +245,29 @@ class Router
             $this->page_output = ob_get_clean();
             return True;
         }
+        catch (HttpError $e)
+        {
+            /*
+            catch exceptions thrown as HTTP errors
+            */
+            /*
+            call ob_end_clean here to finish getting the buffer contents
+            we don't need it anymore so we can discard it
+            */
+            ob_end_clean();
+
+            /*
+            call the error method
+            find the exception error controller
+            pass it the exception object so it can pull out the information
+            */
+            $this->error('http', $e);
+        }
         catch (Exception $e)
         {
+            /*
+            catch exceptions that aren't HTTP errors
+            */
             /*
             call ob_end_clean here to finish getting the buffer contents
             we don't need it anymore so we can discard it
