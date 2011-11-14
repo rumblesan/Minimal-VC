@@ -29,3 +29,13 @@
     {
         require_once FRAMEWORK . '/autoload/autoload.php';
     }
+
+    /*
+    if error to exception handling is on and the error handler
+    file exists then load it and set the error handler
+    */
+    if (ERROREXCEPTIONS && file_exists(FRAMEWORK . '/error_handler/error_handler.php'))
+    {
+        require_once FRAMEWORK . '/error_handler/error_handler.php';
+        set_error_handler("exception_error_handler");
+    }

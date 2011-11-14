@@ -29,6 +29,11 @@
     Turn autoloading on or off
     */
     define('AUTOLOAD', True);
+    
+    /*
+    Turn error to exception handling on
+    */
+    define ('ERROREXCEPTIONS' True);
 
     /*
     Load core file
