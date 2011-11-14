@@ -39,10 +39,19 @@ abstract class Controller
         /*
         generally the request method arg will be left to it's default
         it can be set manually to make testing easier
+        it will also check for the Method Override header and
+        use that if it's set
         */
         if ($req_method === '')
         {
-            $req_method = $_SERVER['REQUEST_METHOD'];
+            if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
+            {
+                $req_method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+            }
+            else
+            {
+                $req_method = $_SERVER['REQUEST_METHOD'];
+            }
         }
         $this->req_method = $req_method;
 
