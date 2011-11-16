@@ -33,15 +33,16 @@
     /*
     Turn error to exception handling on
     */
-    define ('ERROREXCEPTIONS' True);
+    define ('ERROREXCEPTIONS', True);
 
     /*
-    Load core file
+    setting error reporting
     */
-    require_once FRAMEWORK . 'framework_core.php';
+    error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
 
     /*
-    Load app config files if it exists
+    Load any app config files
     */
     $cfg_dir = APP . 'cfg/';
     if ( is_dir($cfg_dir) )
@@ -54,14 +55,20 @@
     }
 
     /*
+    Load core file
+    */
+    require_once FRAMEWORK . 'framework_core.php';
+
+    /*
     Set the include path
     */
-    ini_set("include_path", APP);
+    ini_set('include_path', APP);
 
-    define('DEFAULT_URI', 'main');
+
     /*
     The Router takes the URL, parses it and then runs the correct controller
     */
+    define('DEFAULT_URI', 'main');
     $router = New Router(CPATH, $_SERVER['REQUEST_URI'], BASE, DEFAULT_URI);
     $router->run();
 
