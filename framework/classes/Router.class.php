@@ -1,36 +1,101 @@
 <?php
+/**
+ *
+ */
+/**
+ *The Router class takes a URI and finds the corresponding controller file
+ *
+ *The Router class performs a number of tasks
+ * - strips off the BASE of the URI. for example, if
+ *   the site address is http://foo.com/base/
+ * - defaults to the default URI if the given one is blank
+ * - splits the URI into its sub elements, splitting on '/'
+ * - attempts to find the controller file, load it, create the
+ *   controller class and then run it
+ * - catches any exceptions thrown within the controller and
+ *   calls an error handling page if necessary
+ *
+ *
+ */
 
 class Router
 {
-    /*stores the URI the webserver passes minus the GET args*/
+    /*beginning docblock template*/
+    /**#@+
+     * @access private
+     * @var string
+     */
+    /**
+     * Stores the URI the webserver passes
+     */
     private $uri;
-    /*the GET arguments passed with the URI*/
+    /**
+     * The GET arguments passed with the URI
+     */
     private $get_args;
-    /*the BASE of the URI. needs to be removed before routing*/
+    /**
+     * The BASE of the URI. Is removed before routing
+     */
     private $uri_base;
-    /*the default URI to use if the one passed is blank*/
+    /**
+     * Default URI to use if the one passed is blank
+     */
     private $uri_default;
-    /*stores the uri after it has been split and formatted*/
+    /**
+     * Stores the uri after it has been split and formatted
+     * @var array
+     */
     private $uri_parts = array();
 
-    /*stores the name of the controller class*/
+
+    /**
+     * Stores the name of the controller to be called
+     */
     private $c_name = '';
-    /*stores the folder path to the controller file*/
+    /**
+     * Stores the path to the controller
+     */
     private $c_path = '';
-    /*stores the name of the controller file*/
+    /**
+     * Stores the name of the controller file
+     */
     private $c_file = '';
-    /*stores the arguments for the controller*/
+    /**
+     * Stores the arguments to be passed to the controller
+     * @var array
+     */
     private $c_args = array();
 
-    /*stores the name of the controller folder in the app directory*/
+    /**
+     * Stores the name of the controller folder in the app directory
+     */
     private $c_folder;
 
-    /*
-    stores the output of the PHP script before sending it 
-    to the output buffer. This is done to make error handling easier
-    */
-    private $page_output;
+    /**
 
+     * Stores the output of the PHP script before sending it 
+     * to the output buffer. This is done to make error handling easier
+     */
+
+    private $page_output;
+    /**#@-*/
+
+    /**
+     * Constructor of the Router class
+     * 
+     * Needs to be passed the main controller folder path, the URI, the BASE
+     * and the default URI. After the object is created the run method needs
+     * to be called.
+     * 
+     * @access public
+     * @return Router
+     * @param string c_folder the path to the controller folder
+     * @param string uri the URI to be parsed. defaults to an empty string
+     * @param string uri_base the uri BASE, defaults to '/'
+     * @param string uri_default the URI to default to if the given one
+     * is blank. defaults to 'main'
+     * @return Router
+     */
     public function __construct($c_folder,
                                 $uri='',
                                 $uri_base='/',
@@ -41,17 +106,45 @@ class Router
         $this->get_args    = isset($uri[1]) ? $uri[1] : array();
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
-        
+
+
         $this->c_folder    = $c_folder;
     }
 
-    /*
-    get the router to find the controller for the given URI
-    if a controller is found then its output is stored in the page_output
-    as long as there are no errors then the page_output will be echoed
+    /**
+     * Run the Router and have it parse the URI data it received
+     *
+     * The URI will be formatted to remove the BASE URL section,
+     * split into it's sub sections and then the Router attempts
+     * to find a corresponding controller
+     *
+     * If a controller file is found it will be run, otherwise
+     * the error method is called with a '404' argument to raise
+     * a '404 Not Found' error page
+     *
+     * When the controller is run, its output will be stored in
+     * the page_output attribute and then echoed out once the
+     * controller has finished.
+     *
+     * If the controller file cannot be loaded or has an error
+     * then the error method will be called with a '500' argument
+     * to raise a '500 Internal Server Error' page
+     * 
+     * @access public
+     * @return none
+     * @uses format_uri
+     * @uses split_uri
+     * @uses find_controller
+     * @uses run_controller
+     * @uses error
+     */
 
-    if a controller isn't found then check for the 404 error page
-    */
+
+
+
+
+
+
     public function run()
     {
         $page_found = $this->format_uri()
@@ -82,12 +175,30 @@ class Router
         echo $this->page_output;
     }
 
-    /*
-    set the uri to the path for the 404 error page
-    if it's found then call it
+    /**
+     * Will attempt to find an error handler controller for the given
+     * error when called.
+     * 
+     * The error controllers all need to be in <c_folder>/error with the
+     * filename c_error_<name>.php and the class name c_error_<name>
+     * 
+     * The process for loading the error controllers is the same as
+     * ordinary ones except in the event of a further error, at which point
+     * the error_fallback method is called instead of another error
+     * 
+     * @access private
+     * @return none
+     * @uses split_uri
+     * @uses find_controller
+     * @uses run_controller
+     * @uses error_fallback
+     */
 
-    if not then use the fallback error method
-    */
+
+
+
+
+
     private function error($error_name, $args='')
     {
         $this->uri = 'error/error_' . $error_name;
@@ -141,11 +252,23 @@ class Router
         die;
     }
 
-    /*
-    if the controller for the error page can't be found then call this method
-    */
+    /**
+     * Fallback function incase there is a problem with the main error
+     * controllers
+     *
+     * Gives a very basic, generic error message incase the correct
+     * error controllers can't be found or have issues
+     * 
+     * @access private
+     * @return none
+     */
+
+
+
     private function error_fallback()
     {
+        header('HTTP/1.1 500 Internal Server Error');
+        header('Connection: close');
         $html  = '<html>';
         $html .= '<head><title>Uh Oh...</title></head>';
         $html .= '<body>';
@@ -157,10 +280,22 @@ class Router
         die;
     }
 
-    /*
-    removes the BASE string from the received URI
-    and trims off any trailing slashes
-    */
+    /**
+     * Removes the BASE string from the received URI
+     *
+
+     * This removes the BASE section from the received URI and trims any
+     * trailing slashes
+     *
+     * For example, if the site is to be situated at 'http://foo.com/site/'
+     * then the BASE would be set to '/site/'. The URI '/site/test/bar/'
+     * would be converted to 'test/bar'
+     * 
+     * @access private
+     * @return Router reference to the parent object to allow
+     * for method chaining
+     */
+
     private function format_uri()
     {
         if (strpos($this->uri, $this->uri_base) === 0)
@@ -171,11 +306,17 @@ class Router
         return $this;
     }
 
-    /*
-    splits the URI up into it's parts, splitting on the slash '/'
-    
-    will change to URI to the default if the one given is blank
-    */
+    /**
+
+     * Splits the URI up into it's sub parts, splitting on the slash '/'
+     *
+
+     * Will change to URI to the default if the one given is blank
+     * 
+     * @access private
+     * @return this
+     */
+
     private function split_uri()
     {
         $uri_parts = explode ('/', $this->uri);
@@ -187,13 +328,34 @@ class Router
         return $this;
     }
 
-    /*
-    takes the uri parts and searches for a controller
-    
-    can search arbitarilly deep through folders
-    any array elements left after the controller name in
-    the uri are assumed to be arguments
-    */
+    /**
+
+     * Uses the uri parts and searches for a controller
+     *
+
+     * Can search arbitarilly deep through folders any array elements left
+
+     * after the controller name in the uri are assumed to be arguments
+     * It will start in the controller folder <c_folder>
+     * passed in to the constructor
+     *
+     * All controller files have filenames in the format 'c_<name>.php and
+     * the class name must be c_<name>
+     *
+     * For example, if the URI is 'foo/bar/test/1/2/3' and the controller
+     * file is $c_folder/foo/bar/c_test.php then the Router will:-
+     * 
+     * First check to see if there is a file $c_folder/c_foo.php
+     * Then check to see if there is a file $c_folder/foo/c_bar.php
+     * Then check to see if there is a file $c_folder/foo/bar/c_test.php
+     * 
+     * It finds $c_folder/foo/bar/c_test.php, saves the 1, 2, 3 section in
+     * the c_args attribute and then returns True
+     * 
+     * @access private
+     * @return boolean
+     */
+
     private function find_controller()
     {
         $found   = False;
@@ -207,7 +369,8 @@ class Router
             $this->c_name = 'c_' . $path_section;
             $this->c_file = $this->c_path . $this->c_name . '.php';
             $this->c_args = $uri_parts;
-            
+
+
             if (file_exists($this->c_file))
             {
                 $found = True;
@@ -219,10 +382,26 @@ class Router
         return $found;
     }
 
-    /*
-    will include the file and then check for the controller class
-    if it is present, create a new object and call the run method
-    */
+    /**
+     * Load the controller file if it's found, create the class and then run it
+     * 
+     * If the controller file is succesfully loaded and the class created then
+     * the output from the controller being run will be saved to a buffer.
+     * Once the controller has finished running, and assuming there are no
+     * errors, the main run function will output the contents of the buffer.
+     * 
+     * This method also has exception handling to catch specific HttpError
+     * exceptions and general Exceptions. This will also cause the error
+     * method to be called so they can be handled by controllers
+     * 
+     * @access private
+     * @return boolean True if controller runs ok, False otherwise
+     * uses error
+     */
+
+
+
+
     private function run_controller()
     {
         require_once($this->c_file);
