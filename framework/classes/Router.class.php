@@ -103,7 +103,7 @@ class Router
     {
         $uri               = explode('?', $uri);
         $this->uri         = $uri[0];
-        $this->get_args    = isset($uri[1]) ? $uri[1] : array();
+        $this->get_args    = isset($uri[1]) ? $uri[1] : '';
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
 
@@ -150,13 +150,22 @@ class Router
         $page_found = $this->format_uri()
                            ->split_uri()
                            ->find_controller();
+        
+        $info = array();
+        $info['uri']   = $this->uri;
+        $info['file']  = $this->c_file;
+        $info['class'] = $this->c_name;
+        $info['path']  = $this->c_path;
+        $info['args']  = $this->c_args;
+        $info['get']   = $this->get_args;
+        
         if ( ! $page_found )
         {
             /*
             the page couldn't be found
             raise a 404 error
             */
-            $this->error('404');
+            $this->error('404', $info);
         }
 
         $page_loaded = $this->run_controller();
@@ -166,7 +175,7 @@ class Router
             there was an error with the controller files
             raise a 500 error
             */
-            $this->error('500');
+            $this->error('500', $info);
         }
 
         /*
