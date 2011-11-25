@@ -65,6 +65,12 @@ class Router
      * @var array
      */
     private $c_args = array();
+    /**
+     * Stores the URI of the controller
+     * @var array
+     */
+    private $c_uri  = '';
+
 
     /**
      * Stores the name of the controller folder in the app directory
@@ -369,18 +375,20 @@ class Router
     {
         $found   = False;
 
-        $file_path = '';
         $uri_parts = $this->uri_parts;
 
         while ($path_section = array_shift($uri_parts))
         {
-            $this->c_path = $this->c_folder . $file_path;
+            $this->c_path = $this->c_folder . $this->c_uri;
+
             $this->c_name = 'c_' . $path_section;
-            $this->c_file = $this->c_path . $this->c_name . '.php';
+            $this->c_file = $this->c_name . '.php';
+
             $this->c_args = $uri_parts;
 
+            $this->c_uri .= $path_section . '/';
 
-            if (file_exists($this->c_file))
+            if (file_exists($this->c_path . $this->c_file))
             {
                 $found = True;
                 break;
@@ -413,7 +421,7 @@ class Router
 
     private function run_controller()
     {
-        require_once($this->c_file);
+        require_once($this->c_path . $this->c_file);
         
         if ( ! class_exists($this->c_name) )
         {
@@ -422,7 +430,11 @@ class Router
 
         try
         {
-            $controller = new $this->c_name($this->c_args);
+            $uri  = 'http://' . $_SERVER['HTTP_HOST'];
+            $uri .= $this->uri_base;
+            $uri .= $this->c_uri;
+            $controller = new $this->c_name($uri, $this->c_args);
+
             /*
             save the output of the controller into a buffer
             this is done so that when an error is raised we can

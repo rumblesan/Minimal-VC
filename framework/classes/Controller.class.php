@@ -17,6 +17,9 @@ abstract class Controller
     //stores the http response header codes and strings
     protected $status_codes    = array();
 
+    //stores the URI of the controller
+    protected $uri             = array();
+
     //set to true if request uses HEAD method
     //will cause the framework to kill the script
     //after the correct headers have been set so
@@ -29,8 +32,14 @@ abstract class Controller
     //stores the path object
     protected $paths;
 
-    function __construct($args='', $req_method='')
+    function __construct($uri, $args='', $req_method='')
     {
+        /*
+        the uri is assumed to be the full uri used to reach this controller
+        including protocol, hostname and BASE
+        */
+        $this->uri = $uri;
+
         /*
         $args is assumed to be an array
         */
