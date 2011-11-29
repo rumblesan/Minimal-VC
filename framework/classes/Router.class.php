@@ -373,9 +373,11 @@ class Router
 
     private function find_controller()
     {
-        $found   = False;
+        $found       = False;
 
-        $uri_parts = $this->uri_parts;
+        $this->c_uri = '';
+
+        $uri_parts   = $this->uri_parts;
 
         while ($path_section = array_shift($uri_parts))
         {
