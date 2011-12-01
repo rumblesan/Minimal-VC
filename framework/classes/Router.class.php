@@ -17,7 +17,6 @@
  *
  *
  */
-
 class Router
 {
     /*beginning docblock template*/
@@ -67,22 +66,26 @@ class Router
     private $c_args = array();
     /**
      * Stores the URI of the controller
-     * @var array
      */
     private $c_uri  = '';
-
 
     /**
      * Stores the name of the controller folder in the app directory
      */
     private $c_folder;
 
-    /**
 
+    /**
+     * Stores the arguments to be passed to an error controller
+     * @var array
+     */
+    private $e_args  = array();
+
+
+    /**
      * Stores the output of the PHP script before sending it 
      * to the output buffer. This is done to make error handling easier
      */
-
     private $page_output;
     /**#@-*/
 
@@ -112,7 +115,6 @@ class Router
         $this->get_args    = isset($uri[1]) ? $uri[1] : '';
         $this->uri_base    = $uri_base;
         $this->uri_default = $uri_default;
-
 
         $this->c_folder    = $c_folder;
     }
@@ -144,19 +146,12 @@ class Router
      * @uses run_controller
      * @uses error
      */
-
-
-
-
-
-
-
     public function run()
     {
         $page_found = $this->format_uri()
                            ->split_uri()
                            ->find_controller();
-        
+
         $info = array();
         $info['uri']   = $this->uri;
         $info['file']  = $this->c_file;
@@ -164,24 +159,24 @@ class Router
         $info['path']  = $this->c_path;
         $info['args']  = $this->c_args;
         $info['get']   = $this->get_args;
-        
+
         if ( ! $page_found )
         {
             /*
             the page couldn't be found
             raise a 404 error
             */
-            $this->error('404', $info);
+            $this->e_args = $info;
+            $this->error('404');
         }
-
-        $page_loaded = $this->run_controller();
-        if ( ! $page_loaded )
+        else if ( ! $this->run_controller() )
         {
             /*
             there was an error with the controller files
             raise a 500 error
             */
-            $this->error('500', $info);
+            $this->e_args = $info;
+            $this->error('500');
         }
 
         /*
@@ -208,18 +203,19 @@ class Router
      * @uses run_controller
      * @uses error_fallback
      */
-
-
-
-
-
-
-    private function error($error_name, $args='')
+    private function error($error_name)
     {
         $this->uri = 'error/error_' . $error_name;
 
         $page_found = $this->split_uri()
                            ->find_controller();
+
+        /*
+        set the c_args to the e_args so the error arguments get
+        passed to the error controller
+        */
+        $this->c_args = $this->e_args;
+
         if ( ! $page_found )
         {
             /*
@@ -228,26 +224,7 @@ class Router
             */
             $this->error_fallback();
         }
-
-        /*
-        this allows different arguments to be passed to the error page
-        for example, an exception object
-        */
-        if ( is_array($args) )
-        {
-            $this->c_args = $args;
-        }
-        elseif ( $args !== '' )
-        {
-            $this->c_args = array($args);
-        }
-        else
-        {
-            $this->c_args = array();
-        }
-
-        $page_loaded = $this->run_controller();
-        if ( ! $page_loaded )
+        else if ( ! $this->run_controller() )
         {
             /*
             there was an error with the controller files
@@ -259,12 +236,6 @@ class Router
             */
             $this->error_fallback();
         }
-
-        /*
-        everything is ok so echo the controllers output
-        */
-        echo $this->page_output;
-        die;
     }
 
     /**
@@ -277,9 +248,6 @@ class Router
      * @access private
      * @return none
      */
-
-
-
     private function error_fallback()
     {
         header('HTTP/1.1 500 Internal Server Error');
@@ -291,14 +259,12 @@ class Router
         $html .= '<h2>Somethings gone wrong</h2>';
         $html .= '</body>';
         $html .= '</html>';
-        echo $html;
-        die;
+        $this->page_output = $html;
     }
 
     /**
      * Removes the BASE string from the received URI
      *
-
      * This removes the BASE section from the received URI and trims any
      * trailing slashes
      *
@@ -310,7 +276,6 @@ class Router
      * @return Router reference to the parent object to allow
      * for method chaining
      */
-
     private function format_uri()
     {
         if (strpos($this->uri, $this->uri_base) === 0)
@@ -322,16 +287,13 @@ class Router
     }
 
     /**
-
      * Splits the URI up into it's sub parts, splitting on the slash '/'
      *
-
      * Will change to URI to the default if the one given is blank
      * 
      * @access private
      * @return this
      */
-
     private function split_uri()
     {
         $uri_parts = explode ('/', $this->uri);
@@ -344,12 +306,9 @@ class Router
     }
 
     /**
-
      * Uses the uri parts and searches for a controller
      *
-
      * Can search arbitarilly deep through folders any array elements left
-
      * after the controller name in the uri are assumed to be arguments
      * It will start in the controller folder <c_folder>
      * passed in to the constructor
@@ -370,22 +329,17 @@ class Router
      * @access private
      * @return boolean
      */
-
     private function find_controller()
     {
         $found       = False;
-
         $this->c_uri = '';
-
         $uri_parts   = $this->uri_parts;
 
         while ($path_section = array_shift($uri_parts))
         {
             $this->c_path = $this->c_folder . $this->c_uri;
-
             $this->c_name = 'c_' . $path_section;
             $this->c_file = $this->c_name . '.php';
-
             $this->c_args = $uri_parts;
 
             $this->c_uri .= $path_section . '/';
@@ -395,7 +349,6 @@ class Router
                 $found = True;
                 break;
             }
-            $file_path .= $path_section . '/';
         }
 
         return $found;
@@ -417,10 +370,6 @@ class Router
      * @return boolean True if controller runs ok, False otherwise
      * uses error
      */
-
-
-
-
     private function run_controller()
     {
         require_once($this->c_path . $this->c_file);
@@ -436,7 +385,6 @@ class Router
             $uri .= $this->uri_base;
             $uri .= $this->c_uri;
             $controller = new $this->c_name($uri, $this->c_args);
-
             /*
             save the output of the controller into a buffer
             this is done so that when an error is raised we can
@@ -445,7 +393,6 @@ class Router
             ob_start();
             $controller->run();
             $this->page_output = ob_get_clean();
-            return True;
         }
         catch (HttpError $e)
         {
@@ -461,9 +408,10 @@ class Router
             /*
             call the error method
             find the exception error controller
-            pass it the exception object so it can pull out the information
+            set the error args to an array containing the exception object
             */
-            $this->error('http', $e);
+            $this->e_args = array($e);
+            $this->error('http');
         }
         catch (Exception $e)
         {
@@ -479,10 +427,12 @@ class Router
             /*
             call the error method
             find the exception error controller
-            pass it the exception object so it can pull out the information
+            set the error args to an array containing the exception object
             */
-            $this->error('exception', $e);
+            $this->e_args = array($e);
+            $this->error('exception');
         }
+        return True;
     }
 
 }
