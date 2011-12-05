@@ -46,6 +46,13 @@ class Router
      */
     private $uri_parts = array();
 
+    /**
+     * The HTTP request method used
+     * Will check for the HTTP_X_HTTP_METHOD_OVERRIDE header and use
+     * the method given, otherwise defaults to the value in
+     * $_SERVER['REQUEST_METHOD']
+     */
+    private $req_method;
 
     /**
      * Stores the name of the controller to be called
@@ -117,6 +124,17 @@ class Router
         $this->uri_default = $uri_default;
 
         $this->c_folder    = $c_folder;
+
+        if ( isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']) )
+        {
+            $req_method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+        }
+        else
+        {
+            $req_method = $_SERVER['REQUEST_METHOD'];
+        }
+
+        $this->req_method = $req_method;
     }
 
     /**
@@ -215,6 +233,12 @@ class Router
         passed to the error controller
         */
         $this->c_args = $this->e_args;
+
+        /*
+        Changing request method back to GET since this is the only
+        method the error controllers should handle
+        */
+        $this->req_method = 'GET';
 
         if ( ! $page_found )
         {
@@ -384,7 +408,9 @@ class Router
             $uri  = 'http://' . $_SERVER['HTTP_HOST'];
             $uri .= $this->uri_base;
             $uri .= $this->c_uri;
-            $controller = new $this->c_name($uri, $this->c_args);
+            $controller = new $this->c_name($uri,
+                                            $this->req_method,
+                                            $this->c_args);
             /*
             save the output of the controller into a buffer
             this is done so that when an error is raised we can

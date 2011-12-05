@@ -32,7 +32,7 @@ abstract class Controller
     //stores the path object
     protected $paths;
 
-    function __construct($uri, $args='', $req_method='')
+    function __construct($uri, $req_method, $args='')
     {
         /*
         the uri is assumed to be the full uri used to reach this controller
@@ -44,24 +44,10 @@ abstract class Controller
         $args is assumed to be an array
         */
         $this->parse_args($args);
-        
+
         /*
-        generally the request method arg will be left to it's default
-        it can be set manually to make testing easier
-        it will also check for the Method Override header and
-        use that if it's set
+        Router class handles passing in the correct request method
         */
-        if ($req_method === '')
-        {
-            if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
-            {
-                $req_method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
-            }
-            else
-            {
-                $req_method = $_SERVER['REQUEST_METHOD'];
-            }
-        }
         $this->req_method = $req_method;
 
         /*
