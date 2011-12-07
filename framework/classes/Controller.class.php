@@ -20,18 +20,13 @@ abstract class Controller
     //stores the URI of the controller
     protected $uri             = array();
 
-    //set to true if request uses HEAD method
-    //will cause the framework to kill the script
-    //after the correct headers have been set so
-    //we only send them back and not any content
-    protected $head_request    = False;
-
     //the request method used to call the controller
     protected $req_method;
 
-    //stores the path object
-    protected $paths;
-
+    //stores the HTTP status response value output
+    //defaults to 200
+    protected $sent_status_code = 200;
+   
     function __construct($uri, $req_method, $args='')
     {
         /*
@@ -119,11 +114,15 @@ abstract class Controller
             header('Connection: close');
         }
 
-        if ($this->head_request === True)
-        {
-            flush();
-            exit;
-        }
+        $this->sent_status_code = $code;
+    }
+
+    /*
+    Returns the value of the last http status header sent by the conroller
+    */
+    public function get_http_status()
+    {
+        return $this->sent_status_code;
     }
 
     /*
@@ -132,7 +131,6 @@ abstract class Controller
     */
     private function _head()
     {
-        $this->head_request = True;
         $this->req_method   = 'GET';
         $this->run();
     }
