@@ -55,6 +55,13 @@ class Router
     private $req_method;
 
     /**
+     * The HTTP status code sent to the client
+     * Retrieved from the Controller once it's run
+     * @var integer
+     */
+    private $sent_status_code;
+
+    /**
      * Stores the name of the controller to be called
      */
     private $c_name = '';
@@ -135,6 +142,28 @@ class Router
         }
 
         $this->req_method = $req_method;
+    }
+
+    /**
+     * Returns the HTTP request method of the client request
+     *
+     * @access public
+     * @return string
+     */
+    public function get_request_method()
+    {
+        return $this->req_method;
+    }
+
+    /**
+     * Returns the HTTP status code sent by the Controller
+     *
+     * @access public
+     * @return integer
+     */
+    public function get_http_status_code()
+    {
+        return $this->sent_status_code;
     }
 
     /**
@@ -274,6 +303,7 @@ class Router
      */
     private function error_fallback()
     {
+        $this->sent_status_code = 500;
         header('HTTP/1.1 500 Internal Server Error');
         header('Connection: close');
         $html  = '<html>';
@@ -418,6 +448,7 @@ class Router
             */
             ob_start();
             $controller->run();
+            $this->sent_status_code = $controller->get_http_status();
             $this->page_output = ob_get_clean();
         }
         catch (HttpError $e)
