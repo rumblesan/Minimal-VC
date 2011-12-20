@@ -111,7 +111,6 @@ class Router
      * to be called.
      * 
      * @access public
-     * @return Router
      * @param string c_folder the path to the controller folder
      * @param string uri the URI to be parsed. defaults to an empty string
      * @param string uri_base the uri BASE, defaults to '/'
@@ -190,6 +189,7 @@ class Router
      * @uses format_uri
      * @uses split_uri
      * @uses find_controller
+     * @uses load_controller
      * @uses run_controller
      * @uses error
      */
@@ -216,7 +216,7 @@ class Router
             $this->e_args = $info;
             $this->error('404');
         }
-        else if ( ! $this->run_controller() )
+        else if ( ! $this->load_controller() )
         {
             /*
             there was an error with the controller files
@@ -225,6 +225,8 @@ class Router
             $this->e_args = $info;
             $this->error('500');
         }
+
+        $this->run_controller();
 
         /*
         everything is ok so echo the controllers output
@@ -247,6 +249,7 @@ class Router
      * @return none
      * @uses split_uri
      * @uses find_controller
+     * @uses load_controller
      * @uses run_controller
      * @uses error_fallback
      */
@@ -277,7 +280,7 @@ class Router
             */
             $this->error_fallback();
         }
-        else if ( ! $this->run_controller() )
+        else if ( ! $this->load_controller() )
         {
             /*
             there was an error with the controller files
@@ -289,6 +292,8 @@ class Router
             */
             $this->error_fallback();
         }
+
+        $this->run_controller();
     }
 
     /**
@@ -409,10 +414,31 @@ class Router
     }
 
     /**
-     * Load the controller file if it's found, create the class and then run it
+     * Load the controller file and then check to see if the controller
+     * class is available to be created. If it is return True,
+     * otherwise False.
+     *
+     * @access private
+     * @return boolean True if controller runs ok, False otherwise
+     */
+    private function load_controller()
+    {
+        $loading = True;
+
+        require_once($this->c_path . $this->c_file);
+        if ( ! class_exists($this->c_name) )
+        {
+            $loading = False;
+        }
+
+        return $loading;
+    }
+
+    /**
+     * Create an instance of the Controller class and then run it
      * 
-     * If the controller file is succesfully loaded and the class created then
-     * the output from the controller being run will be saved to a buffer.
+     * If the controller file is succesfully created then the output from
+     * the controller being run will be saved to a buffer.
      * Once the controller has finished running, and assuming there are no
      * errors, the main run function will output the contents of the buffer.
      * 
@@ -422,17 +448,10 @@ class Router
      * 
      * @access private
      * @return boolean True if controller runs ok, False otherwise
-     * uses error
+     * @uses error
      */
     private function run_controller()
     {
-        require_once($this->c_path . $this->c_file);
-        
-        if ( ! class_exists($this->c_name) )
-        {
-            return False;
-        }
-
         try
         {
             $uri  = 'http://' . $_SERVER['HTTP_HOST'];
@@ -449,7 +468,7 @@ class Router
             ob_start();
             $controller->run();
             $this->sent_status_code = $controller->get_http_status();
-            $this->page_output = ob_get_clean();
+            $this->page_output      = ob_get_clean();
         }
         catch (HttpError $e)
         {
@@ -489,7 +508,6 @@ class Router
             $this->e_args = array($e);
             $this->error('exception');
         }
-        return True;
     }
 
 }
